@@ -1,0 +1,33 @@
+.sf-nb {
+  font-size: 1.1em;
+  font-weight: bold;
+  font-style: italic;
+  color: #c30;
+}
+i.mce-i-sf-tinymce-button:before {
+  font-family: 'dashicons';
+  content: "\f130";
+}
+#sf-insert-footnote-form {
+  padding-top: 1em;
+}
+#sf-insert-footnote-form .sf-field {
+  margin: 1em 0;
+}
+#sf-insert-footnote-form .sf-field .label {
+  display: block;
+  margin-bottom: .3em;
+}
+#sf-insert-footnote-form .sf-field .input {
+  max-width: 100%;
+}
+#sf-insert-footnote-form .sf-field textarea {
+  width: 100%;
+}
+#sf-insert-footnote-form .sf-field p.note {
+  margin-top: 0;
+  font-size: .85em;
+}
+#sf-insert-footnote-form .sf-buttons {
+  margin: 2em 0;
+}
