@@ -73,13 +73,13 @@ class Sources_Footnotes {
 	protected $custom_fields = null;
 
 	/**
-	 * Post types that footnotes are available for
+	 * Stores the footnotes collected from current post
 	 *
 	 * @since    0.1
 	 *
 	 * @var      array
 	 */
-	protected $footnotes_post_types = null;
+	protected $the_footnotes = null;
 
 	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
@@ -88,9 +88,6 @@ class Sources_Footnotes {
 	 */
 	private function __construct() {
 
-		// Set the settings
-		//$this->settings = $this->get_settings();
-
 		// Global init
 		add_action( 'init', array( $this, 'init' ) );
 
@@ -98,8 +95,8 @@ class Sources_Footnotes {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		// Add the settings page and menu item.
-		//add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
-		//add_action( 'admin_init', array( $this, 'process_plugin_admin_settings' ) );
+		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'process_plugin_admin_settings' ) );
 
 		// Load admin style sheet and JavaScript.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
@@ -109,12 +106,20 @@ class Sources_Footnotes {
 		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
 		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
+		// Other hooks
 		add_action( 'init', array( $this, 'register_custom_post_types' ), 0 );
 		add_action( 'init', array( $this, 'register_custom_taxonomies' ), 0 );
 		add_action( 'init', array( $this, 'register_custom_fields' ) );
 		add_action( 'slt_cf_check_scope', array( $this, 'slt_cf_check_scope' ), 10, 7 );
 		add_action( 'admin_head', array( $this, 'tinymce_button_init' ) );
 		add_action( 'admin_footer', array( $this, 'tinymce_modal_markup' ) );
+		add_action( 'the_content', array( $this, 'list_footnotes_after_content' ), 999999 );
+		add_filter( 'get_the_terms', array( $this, 'get_the_terms' ), 10, 3 );
+
+		// Shortcodes
+		add_shortcode( 'footnote', array( $this, 'footnote_shortcode' ) );
+		add_shortcode( 'list_footnotes', array( $this, 'list_footnotes_shortcode' ) );
+		add_shortcode( 'list_sources', array( $this, 'list_sources_shortcode' ) );
 
 	}
 
@@ -177,19 +182,14 @@ class Sources_Footnotes {
 	 */
 	public function init() {
 
+		// Set the settings
+		$this->settings = $this->get_settings();
+
 		// Load plugin text domain
 		$domain = $this->plugin_slug;
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
 		load_textdomain( $domain, WP_LANG_DIR . '/' . $domain . '/' . $domain . '-' . $locale . '.mo' );
 		load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
-
-		// Post types footnotes are available for
-		$public_cpts = get_post_types( array( 'public' => true, '_builtin' => false ), 'names', 'and' );
-		$this->footnotes_post_types = array( 'page', 'post' );
-		foreach ( $public_cpts as $public_cpt ) {
-			$this->footnotes_post_types[] = $public_cpt;
-		}
-		$this->footnotes_post_types = apply_filters( 'sf_footnotes_post_types', $this->footnotes_post_types );
 
 	}
 
@@ -218,7 +218,7 @@ class Sources_Footnotes {
 	public function enqueue_admin_styles() {
 		$screen = get_current_screen();
 
-		if ( in_array( $screen->id, $this->footnotes_post_types ) ) {
+		if ( in_array( $screen->id, $this->settings['footnotes_post_types'] ) ) {
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array( 'dashicons' ), $this->version );
 		}
 
@@ -234,7 +234,7 @@ class Sources_Footnotes {
 	public function enqueue_admin_scripts() {
 		$screen = get_current_screen();
 
-		if ( in_array( $screen->id, $this->footnotes_post_types ) ) {
+		if ( in_array( $screen->id, $this->settings['footnotes_post_types'] ) ) {
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
 		}
 
@@ -285,6 +285,22 @@ class Sources_Footnotes {
 	}
 
 	/**
+	 * Gets the post types that might have footnotes
+	 *
+	 * @since    0.1
+	 */
+	protected function get_eligible_post_types() {
+
+		$post_types = array( 'page' => 'Page', 'post' => 'Post' );
+		$public_cpts = get_post_types( array( 'public' => true, '_builtin' => false ), 'objects', 'and' );
+		foreach ( $public_cpts as $public_cpt ) {
+			$post_types[ $public_cpt->name ] = $public_cpt->label;
+		}
+
+		return $post_types;
+	}
+
+	/**
 	 * Get the plugin's settings
 	 *
 	 * @since    0.1
@@ -294,8 +310,18 @@ class Sources_Footnotes {
 		$settings = get_option( $this->plugin_slug . '_settings' );
 
 		if ( ! $settings ) {
+
 			// Defaults
-			$settings = array();
+			$settings = array(
+				'footnotes_post_types'		=> array_keys( $this->get_eligible_post_types() ),
+				'auto_list_footnotes'		=> true,
+				'footnotes_wrapper_tag'		=> 'aside',
+				'list_footnotes_heading'	=> __( 'Footnotes', $this->plugin_slug ),
+				'before_number'				=> '',
+				'after_number'				=> '',
+				'ibid'						=> false,
+			);
+
 		}
 
 		return $settings;
@@ -321,7 +347,15 @@ class Sources_Footnotes {
 		if ( isset( $_POST[ $this->plugin_slug . '_settings_admin_nonce' ] ) && check_admin_referer( $this->plugin_slug . '_settings', $this->plugin_slug . '_settings_admin_nonce' ) ) {
 
 			// Gather into array
-			$settings = array();
+			$settings = array(
+				'footnotes_post_types'		=> $_REQUEST['footnotes_post_types'],
+				'auto_list_footnotes'		=> isset( $_REQUEST['auto_list_footnotes'] ),
+				'footnotes_wrapper_tag'		=> preg_replace( '/[^a-z]/', '', $_REQUEST['footnotes_wrapper_tag'] ),
+				'list_footnotes_heading'	=> wp_strip_all_tags( $_REQUEST['list_footnotes_heading'] ),
+				'before_number'				=> wp_strip_all_tags( $_REQUEST['before_number'] ),
+				'after_number'				=> wp_strip_all_tags( $_REQUEST['after_number'] ),
+				'ibid'						=> isset( $_REQUEST['ibid'] ),
+			);
 
 			// Save as option
 			$this->set_settings( $settings );
@@ -350,9 +384,10 @@ class Sources_Footnotes {
 	 * @link	http://www.wpexplorer.com/wordpress-tinymce-tweaks/
 	 */
 	public function tinymce_button_init() {
+		$screen = get_current_screen();
 
 		// Check user permission
-		if ( ( get_post_type() == 'post' && current_user_can( 'edit_posts' ) ) || ( get_post_type() == 'page' && current_user_can( 'edit_pages' ) ) ) {
+		if ( in_array( $screen->id, $this->settings['footnotes_post_types'] ) ) {
 
 			// Check if WYSIWYG is enabled
 			if ( get_user_option( 'rich_editing' ) == 'true' ) {
@@ -394,7 +429,7 @@ class Sources_Footnotes {
 	public function tinymce_modal_markup() {
 		$screen = get_current_screen();
 
-		if ( in_array( $screen->id, $this->footnotes_post_types ) ) {
+		if ( in_array( $screen->id, $this->settings['footnotes_post_types'] ) ) {
 			include_once( 'views/tinymce-modal.php' );
 		}
 
@@ -508,6 +543,104 @@ class Sources_Footnotes {
 			)
 		);
 
+	}
+
+	/**
+	 * Filter terms to sort authors and translators by last name
+	 *
+	 * @since	0.1
+	 * @param	array	$terms
+	 * @param	int		$post_id
+	 * @param	string	$taxonomy
+	 * @param	array
+	 */
+	public function get_the_terms( $terms, $post_id, $taxonomy ) {
+
+		// Authors or translators taxonomy?
+		if ( in_array( $taxonomy, array( 'sf_author', 'sf_translator' ) ) ) {
+
+			// Do the sorting
+			usort( $terms, array( $this, 'sort_terms_by_last_name' ) );
+
+		}
+
+		return $terms;
+	}
+
+	/**
+	 * Comparison to sort by last name
+	 *
+	 * @since	0.1
+	 * @param	string	$a
+	 * @param	string	$b
+	 * @return	int
+	 */
+	public function sort_terms_by_last_name( $a, $b ) {
+
+		// Split by spaces
+		$a_parts = explode( ' ', $a );
+		$a_last = end( $a_parts );
+		$b_parts = explode( ' ', $b );
+		$b_last = end( $b_parts );
+
+		// Compare
+		return strcasecmp( $a_last, $b_last );
+
+	}
+
+	/**
+	 * Last name first format
+	 *
+	 * @since	0.1
+	 * @param	string	$name
+	 * @return	string
+	 */
+	public function last_name_first( $name ) {
+
+		if ( strpos( $name, ' ' ) !== false ) {
+			$name_parts = explode( ' ', $name );
+			$name = array_pop( $name_parts ) . ', ' . implode( ' ', $name_parts );
+		}
+
+		return $name;
+	}
+
+	/**
+	 * List names
+	 *
+	 * @since	0.1
+	 * @param	mixed	$names		Array of strings or object
+	 * @param	string	$name_prop	If $names is an array of objects, this is the property in each object
+	 * 								that contains the name
+	 * @return	string
+	 */
+	public function list_names( $names, $name_prop = 'name' ) {
+		$list = '';
+		$n = 1;
+
+		foreach ( $names as $name ) {
+
+			// Object?
+			if ( is_object( $name ) ) {
+				$name = $name->{$name_prop};
+			}
+
+			// Add to list
+			$list .= $name;
+
+			// Separator?
+			if ( count( $names ) > 1 && $n < count( $names ) ) {
+				if ( $n == ( count( $names ) - 1 ) ) {
+					$list .= ' &amp; ';
+				} else {
+					$list .= ', ';
+				}
+			}
+
+			$n++;
+		}
+
+		return $list;
 	}
 
 	/**
@@ -661,6 +794,180 @@ class Sources_Footnotes {
 		}
 
 		return $scope_match;
+	}
+
+	/**
+	 * The [footnote] shortcode handler
+	 *
+	 * @since	0.1
+	 */
+	public function footnote_shortcode( $atts = array(), $note = '' ) {
+		$output = '';
+
+		// Need to initialize footnotes?
+		if ( ! is_array( $this->the_footnotes ) ) {
+			$this->the_footnotes = array();
+		}
+
+		// Init attributes
+		$a = shortcode_atts( array(
+			'source'	=> null,
+			'page'		=> null,
+		), $atts );
+
+		// Add the footnote
+		$this->the_footnotes[] = array(
+			'source_id'		=> $a['source'],
+			'page'			=> $a['page'],
+			'note'			=> $note,
+		);
+		$footnote_number = count( $this->the_footnotes );
+
+		// Build the footnote number
+		$output = '<span class="sf-number" id="sf-number-' . $footnote_number . '">' . $this->settings['before_number'] . '<a href="#sf-note-' . $footnote_number . '">' . $footnote_number . '</a>' . $this->settings['after_number'] . '</span> ';
+
+		return $output;
+	}
+
+	/**
+	 * List footnotes after content
+	 *
+	 * @since	0.1
+	 */
+	public function list_footnotes_after_content( $content ) {
+
+		if ( $this->settings['auto_list_footnotes'] ) {
+			$content = $content . $this->list_footnotes( false );
+		}
+
+		return $content;
+	}
+
+	/**
+	 * List footnotes
+	 *
+	 * @since	0.1
+	 * @param	bool	$echo
+	 * @return	mixed
+	 */
+	public function list_footnotes( $echo = true ) {
+		$output = '';
+
+		if ( $this->the_footnotes ) {
+
+			// Open wrapper
+			$output .= '<' . $this->settings['footnotes_wrapper_tag'] . ' id="sf-footnotes">';
+
+			// Heading
+			$output .= '<h2>' . $this->settings['list_footnotes_heading'] . '</h2>';
+
+			// Open list
+			$output .= '<ol>';
+
+			// List footnotes
+			$n = 1;
+			$sources_cache = array();
+			foreach ( $this->the_footnotes as $footnote ) {
+
+				// Open note
+				$footnote_output = '<li id="sf-note-' . $n . '">';
+
+				// The source
+				if ( $footnote['source_id'] && function_exists( 'slt_cf_all_field_values' ) ) {
+
+					// Has the source been used before?
+					if ( array_key_exists( $footnote['source_id'], $sources_cache ) ) {
+
+						$footnote_output .= '';
+
+					} else {
+
+						// Add details to cache
+						$sources_cache[ $footnote['source_id'] ] = $this->get_source_details( $footnote['source_id'] );
+
+						// Authors / translators first
+						if ( $sources_cache[ $footnote['source_id'] ]['authors'] ) {
+
+							// List authors
+							$footnote_output .= $this->list_names( $sources_cache[ $footnote['source_id'] ]['authors'] );
+
+							// Editor(s)?
+							if ( isset( $sources_cache[ $footnote['source_id'] ]['meta']['sf-source-anthology'] ) && $sources_cache[ $footnote['source_id'] ]['meta']['sf-source-anthology'] ) {
+								if ( count( $sources_cache[ $footnote['source_id'] ]['authors'] ) > 1 ) {
+									$footnote_output .= ' (eds.)';
+								} else {
+									$footnote_output .= ' (ed.)';
+								}
+							}
+
+							// List translators
+							if ( $sources_cache[ $footnote['source_id'] ]['translators'] ) {
+								$footnote_output .= '. ' . $this->list_names( $sources_cache[ $footnote['source_id'] ]['translators'] ) . ' (trans.)';
+							}
+
+						}
+
+						// Now the date
+						$footnote_output .= $footnote['note'];
+
+					}
+
+				}
+
+				// The note
+				if ( $footnote['note'] ) {
+					$footnote_output .= $footnote['note'];
+				}
+
+				// Jump back
+				// @link http://daringfireball.net/2005/07/footnotes
+				$footnote_output .= ' <a href="#sf-number' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">&#8617;</a>';
+
+				// Close note
+				$footnote_output .= '</li>';
+
+				// Filter and append to output
+				$output .= apply_filters( 'sf_footnote', $footnote_output );
+
+				$n++;
+			}
+
+			// Close list
+			$output .= '</ol>';
+
+			// Close wrapper
+			$output .= '</' . $this->settings['footnotes_wrapper_tag'] . '>';
+
+		}
+
+		if ( $echo ) {
+			echo $output;
+		} else {
+			return $output;
+		}
+	}
+
+	/**
+	 * Get all source details
+	 *
+	 * @since	0.1
+	 * @param	int		$source_id
+	 * @return	array
+	 */
+	public function get_source_details( $source_id ) {
+
+		$details = array(
+			'title'			=> get_the_title( $source_id ),
+			'meta'			=> array(),
+			'authors'		=> get_the_terms( $source_id, 'sf_author' ),
+			'translators'	=> get_the_terms( $source_id, 'sf_translator' ),
+		);
+
+		if ( function_exists( 'slt_cf_all_field_values' ) ) {
+			$details['meta'] = slt_cf_all_field_values( 'post', $source_id );
+		}
+
+		return $details;
 	}
 
 }

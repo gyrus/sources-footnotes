@@ -31,3 +31,27 @@ register_activation_hook( __FILE__, array( 'Sources_Footnotes', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Sources_Footnotes', 'deactivate' ) );
 
 Sources_Footnotes::get_instance();
+
+
+/* Easy-access functions for theme templates
+*******************************************************************************/
+
+/**
+ * List footnotes
+ *
+ * @since	0.1
+ * @param	bool	$echo
+ * @return	mixed
+ */
+function sf_list_footnotes( $echo = true ) {
+	$SF = Sources_Footnotes::get_instance();
+
+	$output = $SF->list_footnotes( false );
+
+	if ( $echo ) {
+		echo $output;
+	} else {
+		return $output;
+	}
+
+}
