@@ -149,18 +149,10 @@ class Sources_Footnotes {
 	 */
 	public static function activate( $network_wide ) {
 
-		// Trigger taxonomies first - this runs before init hook
-		self::register_custom_taxonomies();
-
-		// Add default source types
-		if ( taxonomy_exists( 'sf_source_type' ) ) {
-			wp_insert_term( 'Book', 'sf_source_type' );
-			wp_insert_term( 'Article', 'sf_source_type' );
-			wp_insert_term( 'Film', 'sf_source_type' );
-			wp_insert_term( 'Web page', 'sf_source_type' );
-			wp_insert_term( 'Song', 'sf_source_type' );
-			wp_insert_term( 'Audio', 'sf_source_type' );
-		}
+		// This is a trick used to get around the difficulty of adding hooks and calling non-static methods here
+		// The actual activation stuff is done in admin_init
+		// @link http://codex.wordpress.org/Function_Reference/register_activation_hook#Process_Flow
+		add_option( __CLASS__ . '_activating', 1 );
 
 	}
 
@@ -200,6 +192,23 @@ class Sources_Footnotes {
 	 * @return	void
 	 */
 	public function admin_init() {
+
+		// Any activation stuff to do?
+		if ( get_option( __CLASS__ . '_activating' ) ) {
+
+			// Clear activation flag
+			delete_option( __CLASS__ . '_activating' );
+
+			// Add default source types
+			if ( taxonomy_exists( 'sf_source_type' ) ) {
+				wp_insert_term( 'Book', 'sf_source_type' );
+				wp_insert_term( 'Article', 'sf_source_type' );
+				wp_insert_term( 'Film', 'sf_source_type' );
+				wp_insert_term( 'Web page', 'sf_source_type' );
+				wp_insert_term( 'Song', 'sf_source_type' );
+				wp_insert_term( 'Audio', 'sf_source_type' );
+			}
+		}
 
 		// Output dependency notices
 		if ( ! defined( 'SLT_CF_VERSION' ) ) {
@@ -479,28 +488,25 @@ class Sources_Footnotes {
 	public function register_custom_taxonomies() {
 
 		// Source types
-		// Need to check existence in case this has already been called on plugin activation
-		if ( ! taxonomy_exists( 'sf_source_type' ) ) {
-			register_taxonomy(
-				'sf_source_type', 'sf_source',
-				array(
-					'hierarchical'		=> true,
-					'query_var'			=> false,
-					'rewrite'			=> false,
-					'show_admin_column'	=> true,
-					'labels'			=> array(
-						'name'				=> __( 'Source types', $this->plugin_slug ),
-						'singular_name'		=> __( 'Source type', $this->plugin_slug ),
-						'search_items'		=> __( 'Search Source types', $this->plugin_slug ),
-						'all_items'			=> __( 'All Source types', $this->plugin_slug ),
-						'edit_item'			=> __( 'Edit Source type', $this->plugin_slug ),
-						'update_item'		=> __( 'Update Source type', $this->plugin_slug ),
-						'add_new_item'		=> __( 'Add New Source type', $this->plugin_slug ),
-						'new_item_name'		=> __( 'New Source type Name', $this->plugin_slug ),
-					)
+		register_taxonomy(
+			'sf_source_type', 'sf_source',
+			array(
+				'hierarchical'		=> true,
+				'query_var'			=> false,
+				'rewrite'			=> false,
+				'show_admin_column'	=> true,
+				'labels'			=> array(
+					'name'				=> __( 'Source types', $this->plugin_slug ),
+					'singular_name'		=> __( 'Source type', $this->plugin_slug ),
+					'search_items'		=> __( 'Search Source types', $this->plugin_slug ),
+					'all_items'			=> __( 'All Source types', $this->plugin_slug ),
+					'edit_item'			=> __( 'Edit Source type', $this->plugin_slug ),
+					'update_item'		=> __( 'Update Source type', $this->plugin_slug ),
+					'add_new_item'		=> __( 'Add New Source type', $this->plugin_slug ),
+					'new_item_name'		=> __( 'New Source type Name', $this->plugin_slug ),
 				)
-			);
-		}
+			)
+		);
 
 		// Authors
 		register_taxonomy(
