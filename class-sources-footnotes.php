@@ -873,50 +873,82 @@ class Sources_Footnotes {
 			// List footnotes
 			$n = 1;
 			$sources_cache = array();
+			$last_source_id = null;
 			foreach ( $this->the_footnotes as $footnote ) {
 
 				// Open note
 				$footnote_output = '<li id="sf-note-' . $n . '">';
 
 				// The source
-				if ( $footnote['source_id'] && function_exists( 'slt_cf_all_field_values' ) ) {
+				if ( $footnote['source_id'] ) {
 
 					// Has the source been used before?
-					if ( array_key_exists( $footnote['source_id'], $sources_cache ) ) {
-
-						$footnote_output .= '';
-
-					} else {
+					if ( ! array_key_exists( $footnote['source_id'], $sources_cache ) ) {
 
 						// Add details to cache
 						$sources_cache[ $footnote['source_id'] ] = $this->get_source_details( $footnote['source_id'] );
+
+						/*
+						 * Compile the source
+						 */
+						$compiled_source = '';
 
 						// Authors / translators first
 						if ( $sources_cache[ $footnote['source_id'] ]['authors'] ) {
 
 							// List authors
-							$footnote_output .= $this->list_names( $sources_cache[ $footnote['source_id'] ]['authors'] );
+							$compiled_source .= $this->list_names( $sources_cache[ $footnote['source_id'] ]['authors'] );
 
 							// Editor(s)?
 							if ( isset( $sources_cache[ $footnote['source_id'] ]['meta']['sf-source-anthology'] ) && $sources_cache[ $footnote['source_id'] ]['meta']['sf-source-anthology'] ) {
 								if ( count( $sources_cache[ $footnote['source_id'] ]['authors'] ) > 1 ) {
-									$footnote_output .= ' (eds.)';
+									$compiled_source .= ' (eds.)';
 								} else {
-									$footnote_output .= ' (ed.)';
+									$compiled_source .= ' (ed.)';
 								}
 							}
 
 							// List translators
 							if ( $sources_cache[ $footnote['source_id'] ]['translators'] ) {
-								$footnote_output .= '. ' . $this->list_names( $sources_cache[ $footnote['source_id'] ]['translators'] ) . ' (trans.)';
+								$compiled_source .= '. ' . $this->list_names( $sources_cache[ $footnote['source_id'] ]['translators'] ) . ' (trans.)';
 							}
 
 						}
 
-						// Now the date
-						$footnote_output .= $footnote['note'];
+						// Add separator
+						$compiled_source .= ', ';
+
+						// The work
+						//switch (  )
+
+						// Store compiled source in cache
+						$sources_cache[ $footnote['source_id'] ][ 'compiled_source' ] = $compiled_source;
+
+					} else {
+
+						// Pass compiled source through
+						$compiled_source = $sources_cache[ $footnote['source_id'] ][ 'compiled_source' ];
 
 					}
+
+					// Was it the last source?
+					if ( $last_source_id == $footnote['source_id'] ) {
+
+						// Ibid.
+						$footnote_output .= '<i>Ibid.</i>';
+
+					} else {
+
+						// Full source
+						$footnote_output .= $compiled_source;
+
+					}
+
+					// Add separator
+					$footnote_output .= ', ';
+
+					// Store ID for next time round
+					$last_source_id = $footnote['source_id'];
 
 				}
 
