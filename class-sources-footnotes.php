@@ -905,9 +905,9 @@ class Sources_Footnotes {
 							// Editor(s)?
 							if ( isset( $source_details['meta']['sf-source-anthology'] ) && $source_details['meta']['sf-source-anthology'] ) {
 								if ( count( $sources_cache[ $footnote['source_id'] ]['authors'] ) > 1 ) {
-									$compiled_source .= ' (eds.)';
+									$compiled_source .= ' (' . __( 'eds.', $this->plugin_slug ) . ')';
 								} else {
-									$compiled_source .= ' (ed.)';
+									$compiled_source .= ' (' . __( 'ed.', $this->plugin_slug ) . ')';
 								}
 							}
 
