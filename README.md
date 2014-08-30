@@ -21,6 +21,8 @@ Note that the plugin folder should be named `sources-footnotes`. This is because
 
 ## Filter hooks
 
-* `sf_source_post_type_args` - Modify the default arguments for registering the source post type
-* `sf_custom_field_details_box_args` - Modify the default arguments for registering the details custom fields
-* `sf_footnote` - Modify the markup output for each footnote
+* `sf_source_post_type_args` - Modify the default arguments for registering the source post type (passes the arguments)
+* `sf_custom_field_details_box_args` - Modify the default arguments for registering the details custom fields (passes the arguments)
+* `sf_source_title` - Modify the output for a sources's title (passes the formatted title, and the source details array)
+* `sf_date_format` - Modify date formats (passes the formatted date, and the original date string)
+* `sf_footnote` - Modify the markup output for each footnote (passes the footnote)

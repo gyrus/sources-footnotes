@@ -227,7 +227,7 @@ class Sources_Footnotes {
 	public function enqueue_admin_styles() {
 		$screen = get_current_screen();
 
-		if ( in_array( $screen->id, $this->settings['footnotes_post_types'] ) ) {
+		if ( in_array( $screen->id, array_merge( $this->settings['footnotes_post_types'], array( 'sf_source' ) ) ) ) {
 			wp_enqueue_style( $this->plugin_slug .'-admin-styles', plugins_url( 'css/admin.css', __FILE__ ), array( 'dashicons' ), $this->version );
 		}
 
@@ -243,7 +243,7 @@ class Sources_Footnotes {
 	public function enqueue_admin_scripts() {
 		$screen = get_current_screen();
 
-		if ( in_array( $screen->id, $this->settings['footnotes_post_types'] ) ) {
+		if ( in_array( $screen->id, array_merge( $this->settings['footnotes_post_types'], array( 'sf_source' ) ) ) ) {
 			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
 		}
 
@@ -881,12 +881,15 @@ class Sources_Footnotes {
 
 				// The source
 				if ( $footnote['source_id'] ) {
+					$add_full_stop = true;
 
 					// Has the source been used before?
 					if ( ! array_key_exists( $footnote['source_id'], $sources_cache ) ) {
 
 						// Add details to cache
 						$sources_cache[ $footnote['source_id'] ] = $this->get_source_details( $footnote['source_id'] );
+						// Easy reference
+						$source_details = &$sources_cache[ $footnote['source_id'] ];
 
 						/*
 						 * Compile the source
@@ -894,13 +897,13 @@ class Sources_Footnotes {
 						$compiled_source = '';
 
 						// Authors / translators first
-						if ( $sources_cache[ $footnote['source_id'] ]['authors'] ) {
+						if ( $source_details['authors'] ) {
 
 							// List authors
-							$compiled_source .= $this->list_names( $sources_cache[ $footnote['source_id'] ]['authors'] );
+							$compiled_source .= $this->list_names( $source_details['authors'] );
 
 							// Editor(s)?
-							if ( isset( $sources_cache[ $footnote['source_id'] ]['meta']['sf-source-anthology'] ) && $sources_cache[ $footnote['source_id'] ]['meta']['sf-source-anthology'] ) {
+							if ( isset( $source_details['meta']['sf-source-anthology'] ) && $source_details['meta']['sf-source-anthology'] ) {
 								if ( count( $sources_cache[ $footnote['source_id'] ]['authors'] ) > 1 ) {
 									$compiled_source .= ' (eds.)';
 								} else {
@@ -909,20 +912,61 @@ class Sources_Footnotes {
 							}
 
 							// List translators
-							if ( $sources_cache[ $footnote['source_id'] ]['translators'] ) {
-								$compiled_source .= '. ' . $this->list_names( $sources_cache[ $footnote['source_id'] ]['translators'] ) . ' (trans.)';
+							if ( $source_details['translators'] ) {
+								$compiled_source .= '. ' . $this->list_names( $source_details['translators'] ) . ' (' . __( 'trans.', $this->plugin_slug ) . ')';
 							}
 
 						}
 
-						// Add separator
-						$compiled_source .= ', ';
+						// Year?
+						if ( isset( $source_details['meta']['sf-source-year'] ) && $source_details['meta']['sf-source-year'] ) {
+							$compiled_source .= ' (' . $source_details['meta']['sf-source-year'] . ')';
+						}
 
-						// The work
-						//switch (  )
+						// Add separator?
+						if ( $compiled_source ) {
+							$compiled_source .= ', ';
+						}
+
+						// The title
+						$compiled_source .= $this->format_source_title( $source_details['title'], $source_details );
+
+						// Type-dependent stuff
+						switch ( $source_details['type']->slug ) {
+
+							case 'article': {
+
+								// Origin details
+								if ( ! empty( $source_details['meta']['sf-source-article-origin-title'] ) ) {
+									$compiled_source .= '. ' . __( 'In', $this->plugin_slug ) . ' <i>' . $source_details['meta']['sf-source-article-origin-title'] . '</i>';
+									if ( ! empty( $source_details['meta']['sf-source-article-origin-volume'] ) ) {
+										$compiled_source .= ' (' . $source_details['meta']['sf-source-article-origin-volume'] . ')';
+									}
+									if ( ! empty( $source_details['meta']['sf-source-url'] ) ) {
+										$compiled_source .= '. <a href="' . esc_url( $source_details['meta']['sf-source-url'] ) . '">' . esc_url( $source_details['meta']['sf-source-url'] ) . '</a>';
+										if ( ! empty( $source_details['meta']['sf-source-url-accessed'] ) ) {
+											$compiled_source .= ' (' . __( 'accessed', $this->plugin_slug ) . ' ' . apply_filters( 'sf_date_format', $source_details['meta']['sf-source-url-accessed'], $source_details['meta']['sf-source-url-accessed'] ) . ')';
+										}
+									}
+								}
+
+								break;
+							}
+
+							case 'web-page': {
+
+								// Accessed date
+								if ( ! empty( $source_details['meta']['sf-source-url-accessed'] ) ) {
+									$compiled_source .= ' (' . __( 'accessed', $this->plugin_slug ) . ' ' . apply_filters( 'sf_date_format', $source_details['meta']['sf-source-url-accessed'], $source_details['meta']['sf-source-url-accessed'] ) . ')';
+								}
+
+								break;
+							}
+
+						}
 
 						// Store compiled source in cache
-						$sources_cache[ $footnote['source_id'] ][ 'compiled_source' ] = $compiled_source;
+						$source_details[ 'compiled_source' ] = $compiled_source;
 
 					} else {
 
@@ -936,6 +980,7 @@ class Sources_Footnotes {
 
 						// Ibid.
 						$footnote_output .= '<i>Ibid.</i>';
+						$add_full_stop = false;
 
 					} else {
 
@@ -944,8 +989,10 @@ class Sources_Footnotes {
 
 					}
 
-					// Add separator
-					$footnote_output .= ', ';
+					// Add full stop?
+					if ( $add_full_stop ) {
+						$footnote_output .= '.';
+					}
 
 					// Store ID for next time round
 					$last_source_id = $footnote['source_id'];
@@ -954,12 +1001,12 @@ class Sources_Footnotes {
 
 				// The note
 				if ( $footnote['note'] ) {
-					$footnote_output .= $footnote['note'];
+					$footnote_output .= ' ' . $footnote['note'];
 				}
 
 				// Jump back
 				// @link http://daringfireball.net/2005/07/footnotes
-				$footnote_output .= ' <a href="#sf-number' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">&#8617;</a>';
+				$footnote_output .= ' <a href="#sf-number-' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">&#8617;</a>';
 
 				// Close note
 				$footnote_output .= '</li>';
@@ -999,6 +1046,7 @@ class Sources_Footnotes {
 			'meta'			=> array(),
 			'authors'		=> get_the_terms( $source_id, 'sf_author' ),
 			'translators'	=> get_the_terms( $source_id, 'sf_translator' ),
+			'type'			=> get_the_terms( $source_id, 'sf_source_type' )[0]
 		);
 
 		if ( function_exists( 'slt_cf_all_field_values' ) ) {
@@ -1006,6 +1054,46 @@ class Sources_Footnotes {
 		}
 
 		return $details;
+	}
+
+	/**
+	 * Format a source's title
+	 *
+	 * @since	0.1
+	 * @param	string		$title
+	 * @param	array		$source_details
+	 * @return	string
+	 */
+	public function format_source_title( $title, $source_details ) {
+		$formatted_title = '';
+
+		switch ( $source_details['type']->slug ) {
+
+			case 'article':
+			case 'song': {
+				$formatted_title = '&#8216;' . $title . '&#8217;';
+				break;
+			}
+
+			case 'web-page': {
+				$formatted_title = $title;
+				if ( ! empty( $source_details['meta']['sf-source-url'] ) ) {
+					$formatted_title = '<a href="' . esc_url( $source_details['meta']['sf-source-url'] ) . '">' . $title . '</a>';
+				}
+				break;
+			}
+
+			default: {
+				$formatted_title = '<i>' . $title . '</i>';
+				break;
+			}
+
+		}
+
+		// Apply filters
+		$formatted_title = apply_filters( 'sf_source_title', $formatted_title, $title, $source_details );
+
+		return $formatted_title;
 	}
 
 }
