@@ -327,7 +327,7 @@ class Sources_Footnotes {
 				'footnotes_post_types'		=> array_keys( $this->get_eligible_post_types() ),
 				'auto_list_footnotes'		=> true,
 				'footnotes_wrapper_tag'		=> 'aside',
-				'list_footnotes_heading'	=> __( 'Footnotes', $this->plugin_slug ),
+				'list_footnotes_heading'	=> __( 'Notes', $this->plugin_slug ),
 				'before_number'				=> '',
 				'after_number'				=> '',
 				'ibid'						=> false,
@@ -867,7 +867,7 @@ class Sources_Footnotes {
 			$output .= '<' . $this->settings['footnotes_wrapper_tag'] . ' id="sf-footnotes">';
 
 			// Heading
-			$output .= '<h2>' . $this->settings['list_footnotes_heading'] . '</h2>';
+			$output .= '<h2>' . esc_html( $this->settings['list_footnotes_heading'] ) . '</h2>';
 
 			// Open list
 			$output .= '<ol>';
