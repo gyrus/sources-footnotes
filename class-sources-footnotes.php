@@ -574,23 +574,23 @@ class Sources_Footnotes {
 	}
 
 	/**
-	 * Comparison to sort by last name
+	 * Comparison to sort term objects by last name
 	 *
 	 * @since	0.1
-	 * @param	string	$a
-	 * @param	string	$b
+	 * @param	object	$a
+	 * @param	object	$b
 	 * @return	int
 	 */
 	public function sort_terms_by_last_name( $a, $b ) {
 
 		// Split by spaces
-		$a_parts = explode( ' ', $a );
-		$a_last = end( $a_parts );
-		$b_parts = explode( ' ', $b );
-		$b_last = end( $b_parts );
+		$a_name_parts = explode( ' ', $a->name );
+		$a_name_last = end( $a_name_parts );
+		$b_name_parts = explode( ' ', $b->name );
+		$b_name_last = end( $b_name_parts );
 
 		// Compare
-		return strcasecmp( $a_last, $b_last );
+		return strcasecmp( $a_name_last, $b_name_last );
 
 	}
 
@@ -873,7 +873,8 @@ class Sources_Footnotes {
 			// List footnotes
 			$n = 1;
 			$sources_cache = array();
-			$last_source_id = null;
+			$last_source_id = null; // Keep track for ibid.
+			$last_source_ids_by_author = array(); // Keep track for op. cit.
 			foreach ( $this->the_footnotes as $footnote ) {
 
 				// Open note
@@ -881,7 +882,6 @@ class Sources_Footnotes {
 
 				// The source
 				if ( $footnote['source_id'] ) {
-					$add_full_stop = true;
 
 					// Has the source been used before?
 					if ( ! array_key_exists( $footnote['source_id'], $sources_cache ) ) {
@@ -902,6 +902,11 @@ class Sources_Footnotes {
 							// List authors
 							$compiled_source .= $this->list_names( $source_details['authors'] );
 
+							// Film director?
+							if ( $source_details['type']->slug == 'film' ) {
+								$compiled_source .= ' (' . __( 'dir.', $this->plugin_slug ) . ')';
+							}
+
 							// Editor(s)?
 							if ( isset( $source_details['meta']['sf-source-anthology'] ) && $source_details['meta']['sf-source-anthology'] ) {
 								if ( count( $sources_cache[ $footnote['source_id'] ]['authors'] ) > 1 ) {
@@ -913,7 +918,7 @@ class Sources_Footnotes {
 
 							// List translators
 							if ( $source_details['translators'] ) {
-								$compiled_source .= '. ' . $this->list_names( $source_details['translators'] ) . ' (' . __( 'trans.', $this->plugin_slug ) . ')';
+								$compiled_source .= ', ' . $this->list_names( $source_details['translators'] ) . ' (' . __( 'trans.', $this->plugin_slug ) . ')';
 							}
 
 						}
@@ -934,20 +939,35 @@ class Sources_Footnotes {
 						// Type-dependent stuff
 						switch ( $source_details['type']->slug ) {
 
+							case 'book': {
+
+								// Publication details
+								if ( ! empty( $source_details['meta']['sf-source-publisher'] ) ) {
+									$compiled_source .= ', ';
+									if ( ! empty( $source_details['meta']['sf-source-publisher-location'] ) ) {
+										$compiled_source .= $source_details['meta']['sf-source-publisher-location'] . ': ';
+									}
+									$compiled_source .= $source_details['meta']['sf-source-publisher'];
+									if ( ! empty( $source_details['meta']['sf-source-edition-year'] ) && strcmp( $source_details['meta']['sf-source-edition-year'], $source_details['meta']['sf-source-year'] ) ) {
+										$compiled_source .= ', ' . $source_details['meta']['sf-source-edition-year'];
+									}
+								}
+
+								// URL
+								$compiled_source .= $this->source_url( $source_details );
+
+								break;
+							}
+
 							case 'article': {
 
 								// Origin details
 								if ( ! empty( $source_details['meta']['sf-source-article-origin-title'] ) ) {
-									$compiled_source .= '. ' . __( 'In', $this->plugin_slug ) . ' <i>' . $source_details['meta']['sf-source-article-origin-title'] . '</i>';
+									$compiled_source .= ', ' . __( 'in', $this->plugin_slug ) . ' <i>' . $source_details['meta']['sf-source-article-origin-title'] . '</i>';
 									if ( ! empty( $source_details['meta']['sf-source-article-origin-volume'] ) ) {
 										$compiled_source .= ' (' . $source_details['meta']['sf-source-article-origin-volume'] . ')';
 									}
-									if ( ! empty( $source_details['meta']['sf-source-url'] ) ) {
-										$compiled_source .= '. <a href="' . esc_url( $source_details['meta']['sf-source-url'] ) . '">' . esc_url( $source_details['meta']['sf-source-url'] ) . '</a>';
-										if ( ! empty( $source_details['meta']['sf-source-url-accessed'] ) ) {
-											$compiled_source .= ' (' . __( 'accessed', $this->plugin_slug ) . ' ' . apply_filters( 'sf_date_format', $source_details['meta']['sf-source-url-accessed'], $source_details['meta']['sf-source-url-accessed'] ) . ')';
-										}
-									}
+									$compiled_source .= $this->source_url( $source_details );
 								}
 
 								break;
@@ -966,21 +986,46 @@ class Sources_Footnotes {
 						}
 
 						// Store compiled source in cache
-						$source_details[ 'compiled_source' ] = $compiled_source;
+						$source_details['compiled_source'] = $compiled_source;
 
 					} else {
 
 						// Pass compiled source through
-						$compiled_source = $sources_cache[ $footnote['source_id'] ][ 'compiled_source' ];
+						$compiled_source = $sources_cache[ $footnote['source_id'] ]['compiled_source'];
+						$source_details = &$sources_cache[ $footnote['source_id'] ]; // Easy reference
 
 					}
 
-					// Was it the last source?
+					// To keep track for op. cit., we need a way of identifying by multiple authors
+					if ( $source_details['authors'] ) {
+						$authors_ids = array();
+						foreach ( $source_details['authors'] as $author ) {
+							$authors_ids[] = $author->term_id;
+						}
+						$authors_id = implode( '-', $authors_ids );
+					} else {
+						$authors_id = null;
+					}
+
+					// Handle ibid. and op. cit.
 					if ( $last_source_id == $footnote['source_id'] ) {
 
 						// Ibid.
 						$footnote_output .= '<i>Ibid.</i>';
-						$add_full_stop = false;
+
+					} else if ( array_key_exists( $authors_id, $last_source_ids_by_author ) ) {
+
+						// Op. cit.
+						if ( $last_source_ids_by_author[ $authors_id ] == $footnote['source_id'] ) {
+
+							// Same source
+							$footnote_output .= $this->list_names( $source_details['authors'] ) . ', <i>Op. cit.</i>';
+
+						} else {
+
+							// Different source
+							$footnote_output .= $this->list_names( $source_details['authors'] ) . ' (' . $source_details['meta']['sf-source-year'] . '), <i>Op. cit.</i>';
+						}
 
 					} else {
 
@@ -989,13 +1034,29 @@ class Sources_Footnotes {
 
 					}
 
-					// Add full stop?
-					if ( $add_full_stop ) {
-						$footnote_output .= '.';
+					// Page reference?
+					if ( ! empty( $footnote['page'] ) ) {
+
+						if ( strpos( $footnote['page'], '-' ) !== false ) {
+							$footnote_output .= ', pp. ';
+						} else {
+							$footnote_output .= ', p. ';
+						}
+						$footnote_output .= $footnote['page'] . '.';
+
+					} else {
+
+						$footnote_output .= '. ';
+
 					}
 
-					// Store ID for next time round
+					// Keep track for ibid.
 					$last_source_id = $footnote['source_id'];
+
+					// And for op. cit.
+					if ( $authors_id ) {
+						$last_source_ids_by_author[ $authors_id ] = $footnote['source_id'];
+					}
 
 				}
 
@@ -1054,6 +1115,26 @@ class Sources_Footnotes {
 		}
 
 		return $details;
+	}
+
+	/**
+	 * Generate source URL for output
+	 *
+	 * @since	0.1
+	 * @param	array		$source_details
+	 * @return	string
+	 */
+	protected function source_url( $source_details ) {
+		$output = '';
+
+		if ( ! empty( $source_details['meta']['sf-source-url'] ) ) {
+			$output .= ', <a href="' . esc_url( $source_details['meta']['sf-source-url'] ) . '">' . esc_url( $source_details['meta']['sf-source-url'] ) . '</a>';
+			if ( ! empty( $source_details['meta']['sf-source-url-accessed'] ) ) {
+				$output .= ' (' . __( 'accessed', $this->plugin_slug ) . ' ' . apply_filters( 'sf_date_format', $source_details['meta']['sf-source-url-accessed'], $source_details['meta']['sf-source-url-accessed'] ) . ')';
+			}
+		}
+
+		return $output;
 	}
 
 	/**
