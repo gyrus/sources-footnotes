@@ -103,8 +103,8 @@ class Sources_Footnotes {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		// Load public-facing style sheet and JavaScript.
-		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
-		//add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		// Other hooks
 		add_action( 'init', array( $this, 'register_custom_post_types' ), 0 );
@@ -244,7 +244,8 @@ class Sources_Footnotes {
 		$screen = get_current_screen();
 
 		if ( in_array( $screen->id, array_merge( $this->settings['footnotes_post_types'], array( 'sf_source' ) ) ) ) {
-			wp_enqueue_script( $this->plugin_slug . '-admin-script', plugins_url( 'js/admin.js', __FILE__ ), array( 'jquery' ), $this->version );
+			$script = defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV ? plugins_url( 'js/admin.js', __FILE__ ) : plugins_url( 'js/admin.min.js', __FILE__ );
+			wp_enqueue_script( $this->plugin_slug . '-admin-script', $script, array( 'jquery' ), $this->version );
 		}
 
 	}
@@ -264,7 +265,8 @@ class Sources_Footnotes {
 	 * @since    0.1
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_script( $this->plugin_slug . '-plugin-script', plugins_url( 'js/public.js', __FILE__ ), array( 'jquery' ), $this->version );
+		$script = defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV ? plugins_url( 'js/public.js', __FILE__ ) : plugins_url( 'js/public.min.js', __FILE__ );
+		wp_enqueue_script( $this->plugin_slug . '-plugin-script', $script, array( 'jquery', 'jquery-ui-tooltip' ), $this->version );
 	}
 
 	/**
@@ -415,7 +417,7 @@ class Sources_Footnotes {
 	 * @link	http://www.wpexplorer.com/wordpress-tinymce-tweaks/
 	 */
 	public function add_tinymce_plugin( $plugin_array ) {
-		$plugin_array['sf_tinymce_button'] = plugins_url( 'js/tinymce-button.js', __FILE__ );
+		$plugin_array['sf_tinymce_button'] = defined( 'WP_LOCAL_DEV' ) && WP_LOCAL_DEV ? plugins_url( 'js/tinymce-button.js', __FILE__ ) : plugins_url( 'js/tinymce-button.min.js', __FILE__ );
 	    return $plugin_array;
 	}
 
@@ -830,7 +832,7 @@ class Sources_Footnotes {
 		$footnote_number = count( $this->the_footnotes );
 
 		// Build the footnote number
-		$output = '<span class="sf-number" id="sf-number-' . $footnote_number . '">' . $this->settings['before_number'] . '<a href="#sf-note-' . $footnote_number . '">' . $footnote_number . '</a>' . $this->settings['after_number'] . '</span> ';
+		$output = '<span class="sf-number" id="sf-number-' . $footnote_number . '">' . $this->settings['before_number'] . '<a title="" href="#sf-note-' . $footnote_number . '">' . $footnote_number . '</a>' . $this->settings['after_number'] . '</span> ';
 
 		return $output;
 	}
