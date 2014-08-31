@@ -1104,12 +1104,13 @@ class Sources_Footnotes {
 	 */
 	public function get_source_details( $source_id ) {
 
+		$types = get_the_terms( $source_id, 'sf_source_type' );
 		$details = array(
 			'title'			=> get_the_title( $source_id ),
 			'meta'			=> array(),
 			'authors'		=> get_the_terms( $source_id, 'sf_author' ),
 			'translators'	=> get_the_terms( $source_id, 'sf_translator' ),
-			'type'			=> get_the_terms( $source_id, 'sf_source_type' )[0]
+			'type'			=> $types[0]
 		);
 
 		if ( function_exists( 'slt_cf_all_field_values' ) ) {
