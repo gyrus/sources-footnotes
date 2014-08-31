@@ -1010,12 +1010,12 @@ class Sources_Footnotes {
 					}
 
 					// Handle ibid. and op. cit.
-					if ( $last_source_id == $footnote['source_id'] ) {
+					if ( $this->settings['ibid'] && $last_source_id == $footnote['source_id'] ) {
 
 						// Ibid.
 						$footnote_output .= '<i>Ibid.</i>';
 
-					} else if ( array_key_exists( $authors_id, $last_source_ids_by_author ) ) {
+					} else if ( $this->settings['ibid'] && array_key_exists( $authors_id, $last_source_ids_by_author ) ) {
 
 						// Op. cit.
 						if ( $last_source_ids_by_author[ $authors_id ] == $footnote['source_id'] ) {

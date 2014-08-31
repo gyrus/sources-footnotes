@@ -70,7 +70,6 @@
 					<th scope="row"><label for="<?php echo $this->plugin_slug . '-ibid'; ?>"><?php _e( 'Use Ibid. and op. cit.?' ); ?></label></th>
 					<td>
 						<input type="checkbox" name="ibid" id="<?php echo $this->plugin_slug . '-ibid'; ?>" value="1"<?php checked( $this->settings['ibid'] ); ?>>
-						<p class="description"><?php _e( 'If Ibid. isn\'t used, repeated source references will be abbreviated.', $this->plugin_slug ); ?></p>
 					</td>
 				</tr>
 			</tbody>

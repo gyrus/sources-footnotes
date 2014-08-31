@@ -18,6 +18,7 @@ Note that the plugin folder should be named `sources-footnotes`. This is because
 * `.sf-number` - The number link to the note
 * `#sf-footnotes` - The wrapper for the list of footnotes
 * `.sf-jump-back` - The link to jump back from a note to the text
+* `.sf-tooltip` - The footnote tooltips
 
 ## Filter hooks
 
