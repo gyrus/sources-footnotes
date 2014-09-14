@@ -19,6 +19,18 @@ Note that the plugin folder should be named `sources-footnotes`. This is because
 * `#sf-footnotes` - The wrapper for the list of footnotes
 * `.sf-jump-back` - The link to jump back from a note to the text
 * `.sf-tooltip` - The footnote tooltips
+* `.sf-sources` - List of sources
+* `.sf-thumb` - Container for thumbnail in lists of sources
+* `.sf-text` - Container for text in lists of sources
+* `.sf-title` - Title heading in lists of sources
+* `.sf-meta` - Meta information list in lists of sources
+* `.sf-description` - Description in lists of sources
+
+## Shortcodes
+
+* `[sf_footnote]` - Usually inserted by the editor button. The note itself is the content enclosed by the shortcode. Attributes: `source` (ID); `page` (string)
+* `[sf_list_footnotes]` - List footnotes.
+* `[sf_list_sources]` - List sources. Attributes: `type` (taxonomy slug, default: `book`); `author` (taxonomy slug); `recommended` (`1` to list recommended, `0` to list not recommended, omit to list all); `list_type` (`ul` [default] or `ol`); `format` (`listing` [default] or `citation`); `listing_heading_level` (default: `3`); `thumbnail_size` (default: `post-thumbnail`)
 
 ## Filter hooks
 
@@ -27,3 +39,4 @@ Note that the plugin folder should be named `sources-footnotes`. This is because
 * `sf_source_title` - Modify the output for a sources's title (passes the formatted title, and the source details array)
 * `sf_date_format` - Modify date formats (passes the formatted date, and the original date string)
 * `sf_footnote` - Modify the markup output for each footnote (passes the footnote)
+* `sf_compiled_source` - Modify the compiled markup output for a source (passes the current output, the source details array, and the format)

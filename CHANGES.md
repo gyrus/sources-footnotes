@@ -1,8 +1,11 @@
 # Changelog for Sources and Footnotes
 
-## 0.1.1
+## 0.2
 * Integrated option for ibid.
 * Added `recommended` custom field
+* Added `[sf_list_sources]` shortcode
+* Added `[sf_list_footnotes]` shortcode
+* Added `sf_compiled_source` filter
 
 ## 0.1
 * First version

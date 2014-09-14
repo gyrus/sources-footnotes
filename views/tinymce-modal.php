@@ -133,7 +133,7 @@ global $post;
 			var source_id = $( '#sf-source-id' ).val();
 			var page = $.trim( $( '#sf-source-page' ).val() );
 			var note = $.trim( $( '#sf-note' ).val() );
-			var footnote = '[footnote';
+			var footnote = '[sf_footnote';
 			if ( source_id ) {
 				footnote += ' source="' + source_id + '"';
 			}
@@ -142,9 +142,9 @@ global $post;
 			}
 			footnote += ']';
 			if ( note ) {
-				footnote += note + '[/footnote]';
+				footnote += note + '[/sf_footnote]';
 			}
-			if ( footnote != '[footnote]' ) {
+			if ( footnote != '[sf_footnote]' ) {
 				$( '.sf-field .input' ).val( '' );
 				window.send_to_editor( footnote );
 			}

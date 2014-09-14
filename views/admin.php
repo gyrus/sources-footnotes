@@ -41,7 +41,7 @@
 					<th scope="row"><label for="<?php echo $this->plugin_slug . '-auto_list_footnotes'; ?>"><?php _e( 'Automatically list footnotes at end of content' ); ?></label></th>
 					<td>
 						<input type="checkbox" name="auto_list_footnotes" id="<?php echo $this->plugin_slug . '-auto_list_footnotes'; ?>" value="1"<?php checked( $this->settings['auto_list_footnotes'] ); ?>>
-						<p class="description"><?php _e( 'If you don\'t want footnotes listed automatically, use the <code>[list_footnotes]</code> shortcode or the <code>sf_list_footnotes()</code> function.', $this->plugin_slug ); ?></p>
+						<p class="description"><?php _e( 'If you don\'t want footnotes listed automatically, use the <code>[sf_list_footnotes]</code> shortcode or the <code>sf_list_footnotes()</code> function.', $this->plugin_slug ); ?></p>
 					</td>
 				</tr>
 				<tr valign="top">
@@ -64,7 +64,7 @@
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="<?php echo $this->plugin_slug . '-after_number'; ?>"><?php _e( 'After numbers' ); ?></label></th>
-					<td><input type="text" name="after_number" id="<?php echo $this->plugin_slug . '-after_number'; ?>" value="<?php echo esc_attr( $this->settings['before_number'] ); ?>" placeholder="e.g. )"></td>
+					<td><input type="text" name="after_number" id="<?php echo $this->plugin_slug . '-after_number'; ?>" value="<?php echo esc_attr( $this->settings['after_number'] ); ?>" placeholder="e.g. )"></td>
 				</tr>
 				<tr valign="top">
 					<th scope="row"><label for="<?php echo $this->plugin_slug . '-ibid'; ?>"><?php _e( 'Use Ibid. and op. cit.?' ); ?></label></th>
