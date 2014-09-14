@@ -671,6 +671,13 @@ class Sources_Footnotes {
 				'description'	=> ( $pagenow == 'post-new.php' ) ? '<span class="sf-nb">' . __( 'Select the source type and author using the taxonomy boxes. Then save to populate type-specific fields.', $this->plugin_slug ) . '</span>' : '',
 				'fields'	=> array(
 					array(
+						'name'			=> 'sf-source-recommended',
+						'label'			=> __( 'Recommended?', $this->plugin_slug ),
+						'type'			=> 'checkbox',
+						'scope'			=> array( 'sf_source' ),
+						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
+					),
+					array(
 						'name'			=> 'sf-source-subtitle',
 						'label'			=> __( 'Subtitle', $this->plugin_slug ),
 						'type'			=> 'text',
