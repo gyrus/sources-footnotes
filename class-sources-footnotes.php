@@ -867,7 +867,7 @@ class Sources_Footnotes {
 		$footnote_number = count( $this->the_footnotes );
 
 		// Build the footnote number
-		$output = '<span class="sf-number" id="sf-number-' . $footnote_number . '">' . $this->settings['before_number'] . '<a title="" href="#sf-note-' . $footnote_number . '">' . $footnote_number . '</a>' . $this->settings['after_number'] . '</span> ';
+		$output = '<span class="sf-number" id="sf-number-' . $footnote_number . '">' . $this->settings['before_number'] . '<a title="" rel="footnote" href="#sf-note-' . $footnote_number . '">' . $footnote_number . '</a>' . $this->settings['after_number'] . '</span> ';
 
 		return $output;
 	}
@@ -1101,7 +1101,7 @@ class Sources_Footnotes {
 
 				// Jump back
 				// @link http://daringfireball.net/2005/07/footnotes
-				$footnote_output .= ' <a href="#sf-number-' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">' . apply_filters( 'sf_jump_back_link_text', '&#8617;' ) . '</a>';
+				$footnote_output .= ' <a rev="footnote" href="#sf-number-' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">' . apply_filters( 'sf_jump_back_link_text', '&#8617;' ) . '</a>';
 
 				// Close note
 				$footnote_output .= '</li>';
