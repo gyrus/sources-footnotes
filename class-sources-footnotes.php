@@ -1101,7 +1101,7 @@ class Sources_Footnotes {
 
 				// Jump back
 				// @link http://daringfireball.net/2005/07/footnotes
-				$footnote_output .= ' <a href="#sf-number-' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">&#8617;</a>';
+				$footnote_output .= ' <a href="#sf-number-' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">' . apply_filters( 'sf_jump_back_link_text', '&#8617;' ) . '</a>';
 
 				// Close note
 				$footnote_output .= '</li>';

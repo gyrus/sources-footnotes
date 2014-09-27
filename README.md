@@ -40,3 +40,4 @@ Note that the plugin folder should be named `sources-footnotes`. This is because
 * `sf_date_format` - Modify date formats (passes the formatted date, and the original date string)
 * `sf_footnote` - Modify the markup output for each footnote (passes the footnote)
 * `sf_compiled_source` - Modify the compiled markup output for a source (passes the current output, the source details array, and the format)
+* `sf_jump_back_link_text` - Modify the glyph used for the 'jump back' link at the end of each footnote
