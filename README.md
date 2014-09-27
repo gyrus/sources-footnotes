@@ -28,7 +28,7 @@ Note that the plugin folder should be named `sources-footnotes`. This is because
 
 ## Shortcodes
 
-* `[sf_footnote]` - Usually inserted by the editor button. The note itself is the content enclosed by the shortcode. Attributes: `source` (ID); `page` (string)
+* `[sf_footnote]` - Usually inserted by the editor button. The note itself is the content enclosed by the shortcode. If there is no note, make sure to include the self-enclosing slash. Attributes: `source` (ID); `page` (string)
 * `[sf_list_footnotes]` - List footnotes.
 * `[sf_list_sources]` - List sources. Attributes: `type` (taxonomy slug, default: `book`); `author` (taxonomy slug); `recommended` (`1` to list recommended, `0` to list not recommended, omit to list all); `list_type` (`ul` [default] or `ol`); `format` (`listing` [default] or `citation`); `listing_heading_level` (default: `3`); `thumbnail_size` (default: `post-thumbnail`)
 

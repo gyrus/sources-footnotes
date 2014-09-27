@@ -844,7 +844,7 @@ class Sources_Footnotes {
 	 *
 	 * @since	0.1
 	 */
-	public function footnote_shortcode( $atts = array(), $note = '' ) {
+	public function footnote_shortcode( $atts = array(), $note = null ) {
 		$output = '';
 
 		// Need to initialize footnotes?

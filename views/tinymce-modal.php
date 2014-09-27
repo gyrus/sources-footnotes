@@ -140,9 +140,10 @@ global $post;
 			if ( page ) {
 				footnote += ' page="' + page + '"';
 			}
-			footnote += ']';
 			if ( note ) {
-				footnote += note + '[/sf_footnote]';
+				footnote += ']' + note + '[/sf_footnote]';
+			} else {
+				footnote += ' /]';
 			}
 			if ( footnote != '[sf_footnote]' ) {
 				$( '.sf-field .input' ).val( '' );
