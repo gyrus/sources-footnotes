@@ -773,32 +773,36 @@ class Sources_Footnotes {
 	 * @since	0.1
 	 */
 	public function slt_cf_check_scope( $scope_match, $request_type, $scope, $object_id, $scope_key, $scope_value, $field ) {
-		$scope_parts = explode( '_', $scope_value );
 
-		// Check the prefix first
-		if ( $scope_parts[0] == 'sf' ) {
+		if ( is_string( $scope_value ) ) {
+			$scope_parts = explode( '_', $scope_value );
 
-			// Custom source scopes
-			if ( $request_type == 'post' && get_post_type( $object_id ) == 'sf_source' ) {
+			// Check the prefix first
+			if ( $scope_parts[0] == 'sf' ) {
 
-				// Get source type terms
-				$source_type_terms = get_terms( 'sf_source_type', array(
-					'hide_empty'	=> false
-				));
-				$source_types = array();
-				foreach ( $source_type_terms as $source_type_term ) {
-					$source_types[] = $source_type_term->slug;
-				}
+				// Custom source scopes
+				if ( $request_type == 'post' && get_post_type( $object_id ) == 'sf_source' ) {
 
-				if ( count( $scope_parts ) > 2 && in_array( $scope_parts[2], $source_types ) ) {
+					// Get source type terms
+					$source_type_terms = get_terms( 'sf_source_type', array(
+						'hide_empty'	=> false
+					));
+					$source_types = array();
+					foreach ( $source_type_terms as $source_type_term ) {
+						$source_types[] = $source_type_term->slug;
+					}
 
-					// Get source type for this source
-					$the_source_type_terms = get_the_terms( $object_id, 'sf_source_type' );
-					if ( $the_source_type_terms ) {
-						$the_source_type = $the_source_type_terms[0]->slug;
+					if ( count( $scope_parts ) > 2 && in_array( $scope_parts[2], $source_types ) ) {
 
-						if ( $scope_value == 'sf_source_' . $the_source_type ) {
-							$scope_match = true;
+						// Get source type for this source
+						$the_source_type_terms = get_the_terms( $object_id, 'sf_source_type' );
+						if ( $the_source_type_terms ) {
+							$the_source_type = $the_source_type_terms[0]->slug;
+
+							if ( $scope_value == 'sf_source_' . $the_source_type ) {
+								$scope_match = true;
+							}
+
 						}
 
 					}
