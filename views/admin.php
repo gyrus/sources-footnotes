@@ -45,6 +45,12 @@
 					</td>
 				</tr>
 				<tr valign="top">
+					<th scope="row"><label for="<?php echo $this->plugin_slug . '-auto_link_note_urls'; ?>"><?php _e( 'Automatically link URLs in footnotes' ); ?></label></th>
+					<td>
+						<input type="checkbox" name="auto_link_note_urls" id="<?php echo $this->plugin_slug . '-auto_link_note_urls'; ?>" value="1"<?php checked( $this->settings['auto_link_note_urls'] ); ?>>
+					</td>
+				</tr>
+				<tr valign="top">
 					<th scope="row"><label for="<?php echo $this->plugin_slug . '-footnotes_wrapper_tag'; ?>"><?php _e( 'Footnotes wrapper tag' ); ?></label></th>
 					<td>
 						<select name="footnotes_wrapper_tag" id="<?php echo $this->plugin_slug . '-footnotes_wrapper_tag'; ?>" class="regular-text">

@@ -362,6 +362,7 @@ class Sources_Footnotes {
 			$settings = array(
 				'footnotes_post_types'		=> $_REQUEST['footnotes_post_types'],
 				'auto_list_footnotes'		=> isset( $_REQUEST['auto_list_footnotes'] ),
+				'auto_link_note_urls'		=> isset( $_REQUEST['auto_link_note_urls'] ),
 				'footnotes_wrapper_tag'		=> preg_replace( '/[^a-z]/', '', $_REQUEST['footnotes_wrapper_tag'] ),
 				'list_footnotes_heading'	=> wp_strip_all_tags( $_REQUEST['list_footnotes_heading'] ),
 				'before_number'				=> wp_strip_all_tags( $_REQUEST['before_number'] ),
@@ -1100,7 +1101,15 @@ class Sources_Footnotes {
 
 				// The note
 				if ( $footnote['note'] ) {
+
+					// Automatically link URLs?
+					if ( $this->settings['auto_link_note_urls'] ) {
+						$footnote['note'] = preg_replace( '/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/', '<a href="\0">\0</a>', $footnote['note'] );
+					}
+
+					// Add note
 					$footnote_output .= ' ' . $footnote['note'];
+
 				}
 
 				// Jump back

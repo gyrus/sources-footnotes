@@ -9,6 +9,7 @@
 * Added `sf_jump_back_link_text` filter
 * Made shortcodes not enclosing notes self-enclosing
 * `rel` and `rev` attributes for footnote links
+* Setting to auto-link URLs in footnotes
 
 ## 0.1
 * First version
