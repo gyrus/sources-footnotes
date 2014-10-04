@@ -116,6 +116,7 @@ class Sources_Footnotes {
 		add_action( 'save_post', array( $this, 'store_sort_title' ), 10, 2 );
 		add_action( 'the_content', array( $this, 'list_footnotes_after_content' ), 999999 );
 		add_filter( 'get_the_terms', array( $this, 'get_the_terms' ), 10, 3 );
+		add_action( 'the_post', array( $this, 'post_init' ) );
 
 		// Shortcodes
 		add_shortcode( 'sf_footnote', array( $this, 'footnote_shortcode' ) );
@@ -845,17 +846,24 @@ class Sources_Footnotes {
 	}
 
 	/**
+	 * Initialise at the start of each post in the loop
+	 *
+	 * @since	0.1
+	 */
+	public function post_init( $post ) {
+
+		// Empty the footnotes array
+		$this->the_footnotes = array();
+
+	}
+
+	/**
 	 * The [sf_footnote] shortcode handler
 	 *
 	 * @since	0.1
 	 */
 	public function footnote_shortcode( $atts = array(), $note = null ) {
 		$output = '';
-
-		// Need to initialize footnotes?
-		if ( ! is_array( $this->the_footnotes ) ) {
-			$this->the_footnotes = array();
-		}
 
 		// Init attributes
 		$a = shortcode_atts( array(

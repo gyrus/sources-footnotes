@@ -10,6 +10,7 @@
 * Made shortcodes not enclosing notes self-enclosing
 * `rel` and `rev` attributes for footnote links
 * Setting to auto-link URLs in footnotes
+* Fixed bug in loop handling
 
 ## 0.1
 * First version
