@@ -322,10 +322,12 @@ class Sources_Footnotes {
 
 		$settings = get_option( $this->plugin_slug . '_settings' );
 
+		// Defaults
 		if ( ! $settings ) {
-
-			// Defaults
-			$settings = array(
+			$settings = array();
+		}
+		$settings = array_merge(
+			array(
 				'footnotes_post_types'		=> array_keys( $this->get_eligible_post_types() ),
 				'auto_list_footnotes'		=> true,
 				'auto_link_note_urls'		=> true,
@@ -334,9 +336,9 @@ class Sources_Footnotes {
 				'before_number'				=> '',
 				'after_number'				=> '',
 				'ibid'						=> false,
-			);
-
-		}
+			),
+			$settings
+		);
 
 		return $settings;
 	}
