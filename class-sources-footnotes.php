@@ -328,6 +328,7 @@ class Sources_Footnotes {
 			$settings = array(
 				'footnotes_post_types'		=> array_keys( $this->get_eligible_post_types() ),
 				'auto_list_footnotes'		=> true,
+				'auto_link_note_urls'		=> true,
 				'footnotes_wrapper_tag'		=> 'aside',
 				'list_footnotes_heading'	=> __( 'Notes', $this->plugin_slug ),
 				'before_number'				=> '',
