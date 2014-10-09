@@ -116,6 +116,10 @@ global $post;
 		*/ ?>
 	</div>
 
+	<div class="sf-field">
+		<label for="sf-note-before-source" class="label"><input type="checkbox" name="sf_note_before_source" id="sf-note-before-source" value="1"> <?php _e( 'Put note before source', $this->plugin_slug ); ?></label>
+	</div>
+
 	<div class="sf-buttons">
 		<a href="#" class="button button-primary button-large" id="sf-insert-button"><?php _e( 'Insert into text', $this->plugin_slug ); ?></a>
 	</div>
@@ -138,6 +142,7 @@ global $post;
 			var page = $.trim( $( '#sf-source-page' ).val() );
 			var quoted = $( '#sf-quoted' ).is( ':checked' );
 			var note = $.trim( $( '#sf-note' ).val() );
+			var note_before_source = $( '#sf-note-before-source' ).is( ':checked' );
 			var footnote = '[sf_footnote';
 			if ( source_id ) {
 				footnote += ' source="' + source_id + '"';
@@ -147,6 +152,9 @@ global $post;
 			}
 			if ( quoted ) {
 				footnote += ' quoted="yes"';
+			}
+			if ( note_before_source ) {
+				footnote += ' note_before_source="yes"';
 			}
 			if ( note ) {
 				footnote += ']' + note + '[/sf_footnote]';

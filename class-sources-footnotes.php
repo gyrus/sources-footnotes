@@ -870,17 +870,19 @@ class Sources_Footnotes {
 
 		// Init attributes
 		$a = shortcode_atts( array(
-			'source'	=> null,
-			'page'		=> null,
-			'quoted'	=> false,
+			'source'				=> null,
+			'page'					=> null,
+			'quoted'				=> false,
+			'note_before_source'	=> false,
 		), $atts );
 
 		// Add the footnote
 		$this->the_footnotes[] = array(
-			'source_id'		=> $a['source'],
-			'page'			=> $a['page'],
-			'quoted'		=> $a['quoted'],
-			'note'			=> $note,
+			'source_id'				=> $a['source'],
+			'page'					=> $a['page'],
+			'quoted'				=> $a['quoted'],
+			'note'					=> $note,
+			'note_before_source'	=> $a['note_before_source'],
 		);
 		$footnote_number = count( $this->the_footnotes );
 
@@ -1019,9 +1021,7 @@ class Sources_Footnotes {
 			$last_source_id = null; // Keep track for ibid.
 			$last_source_ids_by_author = array(); // Keep track for op. cit.
 			foreach ( $this->the_footnotes as $footnote ) {
-
-				// Open note
-				$footnote_output = '<li id="sf-note-' . $n . '">';
+				$footnote_output = '';
 
 				// Quoted?
 				if ( $footnote['quoted'] ) {
@@ -1126,7 +1126,11 @@ class Sources_Footnotes {
 					}
 
 					// Add note
-					$footnote_output .= ' ' . $footnote['note'];
+					if ( $footnote['note_before_source'] ) {
+						$footnote_output = $footnote['note'] . ' ' . $footnote_output;
+					} else {
+						$footnote_output .= ' ' . $footnote['note'];
+					}
 
 				}
 
@@ -1134,8 +1138,8 @@ class Sources_Footnotes {
 				// @link http://daringfireball.net/2005/07/footnotes
 				$footnote_output .= ' <a rev="footnote" href="#sf-number-' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">' . apply_filters( 'sf_jump_back_link_text', '&#8617;' ) . '</a>';
 
-				// Close note
-				$footnote_output .= '</li>';
+				// Wrap up
+				$footnote_output = '<li id="sf-note-' . $n . '">' . $footnote_output . '</li>';
 
 				// Filter and append to output
 				$output .= apply_filters( 'sf_footnote', $footnote_output );
