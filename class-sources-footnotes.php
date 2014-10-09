@@ -872,12 +872,14 @@ class Sources_Footnotes {
 		$a = shortcode_atts( array(
 			'source'	=> null,
 			'page'		=> null,
+			'quoted'	=> false,
 		), $atts );
 
 		// Add the footnote
 		$this->the_footnotes[] = array(
 			'source_id'		=> $a['source'],
 			'page'			=> $a['page'],
+			'quoted'		=> $a['quoted'],
 			'note'			=> $note,
 		);
 		$footnote_number = count( $this->the_footnotes );
@@ -1020,6 +1022,11 @@ class Sources_Footnotes {
 
 				// Open note
 				$footnote_output = '<li id="sf-note-' . $n . '">';
+
+				// Quoted?
+				if ( $footnote['quoted'] ) {
+					$footnote_output .= __( 'Quoted in', $this->plugin_slug ) . ' ';
+				}
 
 				// The source
 				if ( $footnote['source_id'] ) {

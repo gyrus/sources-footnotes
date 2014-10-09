@@ -105,6 +105,10 @@ global $post;
 	</div>
 
 	<div class="sf-field">
+		<label for="sf-quoted" class="label"><input type="checkbox" name="sf_quoted" id="sf-quoted" value="1"> <?php _e( 'Quoted in source', $this->plugin_slug ); ?></label>
+	</div>
+
+	<div class="sf-field">
 		<label for="sf-note" class="label"><?php _e( 'Note', $this->plugin_slug ); ?></label>
 		<textarea name="sf_note" id="sf-note" class="input" rows="8" cols="50"></textarea>
 		<?php /*
@@ -132,6 +136,7 @@ global $post;
 		if ( typeof window.send_to_editor == 'function' ) {
 			var source_id = $( '#sf-source-id' ).val();
 			var page = $.trim( $( '#sf-source-page' ).val() );
+			var quoted = $( '#sf-quoted' ).is( ':checked' );
 			var note = $.trim( $( '#sf-note' ).val() );
 			var footnote = '[sf_footnote';
 			if ( source_id ) {
@@ -139,6 +144,9 @@ global $post;
 			}
 			if ( page ) {
 				footnote += ' page="' + page + '"';
+			}
+			if ( quoted ) {
+				footnote += ' quoted="yes"';
 			}
 			if ( note ) {
 				footnote += ']' + note + '[/sf_footnote]';
