@@ -12,6 +12,7 @@ Note that the plugin folder should be named `sources-footnotes`. This is because
 1. Go to _Settings > Sources and footnotes_ and check the settings.
 1. When editing a post, click the _Insert footnote_ button in the content editor to insert a footnote.
 1. You can use markup in the note, but you might find it easiest to apply markup once the note's inserted and you can use the editor.
+1. Your theme should use the `post_class()` function on each the containing element for each post in the loop, for notes to work properly across posts in a list.
 
 ## IDs and classes for CSS
 

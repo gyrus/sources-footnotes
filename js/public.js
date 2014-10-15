@@ -10,9 +10,15 @@ jQuery( document ).ready( function( $ ) {
 	// Note given on hover
 	sfn.tooltip({
 		content: function() {
-			var id = sf_get_string_part( $( this ).parent( '.sf-number' ).attr( 'id' ) );
-			var note = $( '#sf-note-' + id ).clone().contents();
-			note.splice( -1, 1 );
+			var el = $( this );
+			var im = el.parents( '.post' ).attr( 'class' ).match( /sf\-instance\-([0-9]+)/ );
+			var i  = im[1];
+			var id = sf_get_string_part( el.parent( '.sf-number' ).attr( 'id' ) );
+			var note = '';
+			if ( i && id ) {
+				note = $( '#sf-instance-' + i + '-note-' + id ).clone().contents();
+				note.splice( -1, 1 );
+			}
 			return note;
 		},
 		tooltipClass: 'sf-tooltip',

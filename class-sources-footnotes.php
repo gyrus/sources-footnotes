@@ -82,6 +82,15 @@ class Sources_Footnotes {
 	protected $the_footnotes = null;
 
 	/**
+	 * Keeps track of footnote instances
+	 *
+	 * @since    0.1
+	 *
+	 * @var      array
+	 */
+	protected $footnote_instance = 0;
+
+	/**
 	 * Initialize the plugin by setting localization, filters, and administration functions.
 	 *
 	 * @since     0.1
@@ -117,6 +126,7 @@ class Sources_Footnotes {
 		add_action( 'the_content', array( $this, 'list_footnotes_after_content' ), 999999 );
 		add_filter( 'get_the_terms', array( $this, 'get_the_terms' ), 10, 3 );
 		add_action( 'the_post', array( $this, 'post_init' ) );
+		add_filter( 'post_class', array( $this, 'post_class' ) );
 
 		// Shortcodes
 		add_shortcode( 'sf_footnote', array( $this, 'footnote_shortcode' ) );
@@ -858,6 +868,22 @@ class Sources_Footnotes {
 		// Empty the footnotes array
 		$this->the_footnotes = array();
 
+		// Increment instance count
+		$this->footnote_instance++;
+
+	}
+
+	/**
+	 * Add class to each post
+	 *
+	 * @since	0.1
+	 */
+	public function post_class( $classes ) {
+
+		// Instance
+		$classes[] = 'sf-instance-' . $this->footnote_instance;
+
+		return $classes;
 	}
 
 	/**
@@ -887,7 +913,7 @@ class Sources_Footnotes {
 		$footnote_number = count( $this->the_footnotes );
 
 		// Build the footnote number
-		$output = '<span class="sf-number" id="sf-number-' . $footnote_number . '">' . $this->settings['before_number'] . '<a title="" rel="footnote" href="#sf-note-' . $footnote_number . '">' . $footnote_number . '</a>' . $this->settings['after_number'] . '</span> ';
+		$output = '<span class="sf-number" id="sf-number-' . $footnote_number . '">' . $this->settings['before_number'] . '<a title="" rel="footnote" href="#sf-instance-' . $this->footnote_instance . '-note-' . $footnote_number . '">' . $footnote_number . '</a>' . $this->settings['after_number'] . '</span> ';
 
 		return $output;
 	}
@@ -1139,7 +1165,7 @@ class Sources_Footnotes {
 				$footnote_output .= ' <a rev="footnote" href="#sf-number-' . $n . '" class="sf-jump-back" title="' . __( 'Jump back to the text for this note', $this->plugin_slug ) . '">' . apply_filters( 'sf_jump_back_link_text', '&#8617;' ) . '</a>';
 
 				// Wrap up
-				$footnote_output = '<li id="sf-note-' . $n . '">' . $footnote_output . '</li>';
+				$footnote_output = '<li id="sf-instance-' . $this->footnote_instance . '-note-' . $n . '">' . $footnote_output . '</li>';
 
 				// Filter and append to output
 				$output .= apply_filters( 'sf_footnote', $footnote_output );
