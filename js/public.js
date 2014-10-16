@@ -11,7 +11,7 @@ jQuery( document ).ready( function( $ ) {
 	sfn.tooltip({
 		content: function() {
 			var el = $( this );
-			var im = el.parents( '.post' ).attr( 'class' ).match( /sf\-instance\-([0-9]+)/ );
+			var im = el.parents( '.sf-post' ).attr( 'class' ).match( /sf\-instance\-([0-9]+)/ );
 			var i  = im[1];
 			var id = sf_get_string_part( el.parent( '.sf-number' ).attr( 'id' ) );
 			var note = '';

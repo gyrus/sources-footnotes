@@ -880,6 +880,9 @@ class Sources_Footnotes {
 	 */
 	public function post_class( $classes ) {
 
+		// Flag that this is the post
+		$classes[] = 'sf-post';
+
 		// Instance
 		$classes[] = 'sf-instance-' . $this->footnote_instance;
 
