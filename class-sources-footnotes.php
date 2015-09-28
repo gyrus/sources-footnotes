@@ -1320,6 +1320,11 @@ class Sources_Footnotes {
 					$meta[] = $origin_details;
 				}
 
+				// URL
+				if ( $url = $this->source_url( $source_details ) ) {
+					$meta[] = $url;
+				}
+
 				break;
 			}
 
