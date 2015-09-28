@@ -22,7 +22,7 @@ class Sources_Footnotes {
 	 *
 	 * @var     string
 	 */
-	protected $version = '0.2';
+	protected $version = '0.2.1';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -1311,9 +1311,6 @@ class Sources_Footnotes {
 					$origin_details .= ' <i>' . $source_details['meta']['sf-source-article-origin-title'] . '</i>';
 					if ( ! empty( $source_details['meta']['sf-source-article-origin-volume'] ) ) {
 						$origin_details .= ' (' . $source_details['meta']['sf-source-article-origin-volume'] . ')';
-					}
-					if ( $origin_url = $this->source_url( $source_details ) ) {
-						$origin_details .= ', ' . $origin_url;
 					}
 				}
 				if ( $origin_details ) {

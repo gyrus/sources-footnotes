@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:			Sources and Footnotes
  * Description:			A WordPress plugin for managing sources and footnotes.
- * Version:				0.2
+ * Version:				0.2.1
  * Author:					Steve Taylor
  * Text Domain:			sources-footnotes-locale
  * License:				GPL-2.0+

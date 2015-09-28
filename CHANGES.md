@@ -1,5 +1,8 @@
 # Changelog for Sources and Footnotes
 
+## 0.2.1 (2015-09-28)
+* Fixed URL output for articles
+
 ## 0.2 (2015-09-28)
 * Integrated option for ibid.
 * Added `recommended` custom field
