@@ -1,5 +1,8 @@
 # Changelog for Sources and Footnotes
 
+## 0.2.2 (2017-??-??)
+* Added source ID to `sf_footnote` filter
+
 ## 0.2.1 (2015-09-28)
 * Fixed URL output for articles
 

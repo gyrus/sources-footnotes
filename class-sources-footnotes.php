@@ -1171,7 +1171,7 @@ class Sources_Footnotes {
 				$footnote_output = '<li id="sf-instance-' . $this->footnote_instance . '-note-' . $n . '">' . $footnote_output . '</li>';
 
 				// Filter and append to output
-				$output .= apply_filters( 'sf_footnote', $footnote_output );
+				$output .= apply_filters( 'sf_footnote', $footnote_output, $footnote['source_id'] );
 
 				$n++;
 			}
