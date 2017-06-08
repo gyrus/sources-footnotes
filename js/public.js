@@ -30,12 +30,14 @@ jQuery( document ).ready( function( $ ) {
 		close: function( event, ui ) {
 			ui.tooltip.hover(
 				function () {
-					$(this).stop(true).fadeTo(400, 1);
+					$( this ).stop( true ).fadeTo( 400, 1 );
 				},
 				function () {
-					$(this).fadeOut("400", function(){ $(this).remove(); })
+					$( this ).fadeOut( 400 );
 				}
 			);
+			// @link	https://bugs.jqueryui.com/ticket/10689
+			$( ".ui-helper-hidden-accessible > *:not(:last)" ).remove();
 		}
 	});
 
