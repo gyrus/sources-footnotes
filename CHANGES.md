@@ -1,7 +1,8 @@
 # Changelog for Sources and Footnotes
 
-## 0.2.2 (2017-??-??)
+## 0.2.2 (2017-06-08)
 * Added source ID to `sf_footnote` filter
+* Fixed issue with jQuery tooltips appearing at bottom of page
 
 ## 0.2.1 (2015-09-28)
 * Fixed URL output for articles

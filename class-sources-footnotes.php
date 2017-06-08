@@ -22,7 +22,7 @@ class Sources_Footnotes {
 	 *
 	 * @var     string
 	 */
-	protected $version = '0.2.1';
+	protected $version = '0.2.2';
 
 	/**
 	 * Unique identifier for your plugin.
