@@ -1,5 +1,8 @@
 # Changelog for Sources and Footnotes
 
+## 0.3 (????-??-??)
+* Added support for CMB2
+
 ## 0.2.2 (2017-06-08)
 * Added source ID to `sf_footnote` filter
 * Fixed issue with jQuery tooltips appearing at bottom of page

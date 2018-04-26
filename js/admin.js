@@ -9,6 +9,14 @@ jQuery( document ).ready( function( $ ) {
 	// Source edit screen
 	if ( body.hasClass( 'post-type-sf_source' ) ) {
 
+		// Move CMB2 box above content
+		$( '#sources_footnotes_details_box' ).each( function() {
+			$( this )
+				.detach()
+				.css( 'margin', '20px 0 0' )
+				.insertAfter('#titlediv');
+		});
+
 		// Checks when form submitted
 		$( 'form#post' ).on( 'submit', function( e ) {
 			var checked = $( '#taxonomy-sf_source_type' ).find( 'input[name^=tax_input]:checked' ).length;

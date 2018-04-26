@@ -22,7 +22,7 @@ class Sources_Footnotes {
 	 *
 	 * @var     string
 	 */
-	protected $version = '0.2.2';
+	protected $version = '0.3';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -118,7 +118,8 @@ class Sources_Footnotes {
 		// Other hooks
 		add_action( 'init', array( $this, 'register_custom_post_types' ), 0 );
 		add_action( 'init', array( $this, 'register_custom_taxonomies' ), 0 );
-		add_action( 'init', array( $this, 'register_custom_fields' ) );
+		add_action( 'init', array( $this, 'register_custom_fields_dcf' ) );
+		add_action( 'cmb2_admin_init', array( $this, 'register_custom_fields_cmb2' ) );
 		add_action( 'slt_cf_check_scope', array( $this, 'slt_cf_check_scope' ), 10, 7 );
 		add_action( 'admin_head', array( $this, 'tinymce_button_init' ) );
 		add_action( 'admin_footer', array( $this, 'tinymce_modal_markup' ) );
@@ -223,8 +224,8 @@ class Sources_Footnotes {
 		}
 
 		// Output dependency notices
-		if ( ! defined( 'SLT_CF_VERSION' ) ) {
-			add_action( 'admin_notices', array( $this, 'output_dcf_dependency_notice' ) );
+		if ( ! defined( 'SLT_CF_VERSION' ) && ! class_exists( 'CMB2' ) ) {
+			add_action( 'admin_notices', array( $this, 'output_custom_fields_dependency_notice' ) );
 		}
 
 	}
@@ -395,13 +396,13 @@ class Sources_Footnotes {
 	}
 
 	/**
-	 * Output Developer's Custom Fields dependency notice
+	 * Output custom fields plugin dependency notice
 	 *
 	 * @since	0.1
 	 * @return	void
 	 */
-	public function output_dcf_dependency_notice() {
-		echo '<div class="error"><p>' . __( 'The Sources and Footnotes plugin depends on the <a href="http://wordpress.org/plugins/developers-custom-fields/">Developer\'s Custom Fields</a> plugin, which isn\'t currently activated', $this->plugin_slug ) . '</p></div>';
+	public function output_custom_fields_dependency_notice() {
+		echo '<div class="error"><p>' . __( 'The Sources and Footnotes plugin depends on either the <a href="https://en-gb.wordpress.org/plugins/cmb2/">CMB2</a> or the <a href="http://wordpress.org/plugins/developers-custom-fields/">Developer\'s Custom Fields</a> plugin, neither of which are currently activated', $this->plugin_slug ) . '</p></div>';
 	}
 
 	/**
@@ -668,11 +669,11 @@ class Sources_Footnotes {
 	}
 
 	/**
-	 * Register custom fields
+	 * Register custom fields for Developer's Custom Fields
 	 *
 	 * @since	0.1
 	 */
-	public function register_custom_fields() {
+	public function register_custom_fields_dcf() {
 		global $pagenow;
 
 		if ( function_exists( 'slt_cf_register_box' ) ) {
@@ -705,7 +706,7 @@ class Sources_Footnotes {
 						'label'			=> __( 'Anthology?', $this->plugin_slug ),
 						'type'			=> 'checkbox',
 						'default'		=> false,
-						'description'	=> __( 'If checked, authors are editors' ),
+						'description'	=> __( 'If checked, authors are editors', $this->plugin_slug ),
 						'scope'			=> array( 'sf_source_book' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
@@ -714,7 +715,7 @@ class Sources_Footnotes {
 						'label'			=> __( 'Year', $this->plugin_slug ),
 						'type'			=> 'text',
 						'width'			=> 12,
-						'description'	=> __( 'The year of original publication' ),
+						'description'	=> __( 'The year of original publication', $this->plugin_slug ),
 						'scope'			=> array( 'sf_source_book', 'sf_source_article', 'sf_source_film', 'sf_source_song' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
@@ -723,7 +724,7 @@ class Sources_Footnotes {
 						'label'			=> __( 'Edition year', $this->plugin_slug ),
 						'type'			=> 'text',
 						'width'			=> 12,
-						'description'	=> __( 'If different from year of original publication' ),
+						'description'	=> __( 'If different from year of original publication', $this->plugin_slug ),
 						'scope'			=> array( 'sf_source_book' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
@@ -755,7 +756,7 @@ class Sources_Footnotes {
 						'name'			=> 'sf-source-article-origin-volume',
 						'label'			=> __( 'Article origin volume details', $this->plugin_slug ),
 						'type'			=> 'text',
-						'description'	=> __( 'e.g. Vol. 42, No. 19, pp. 100-120' ),
+						'description'	=> __( 'e.g. Vol. 42, No. 19, pp. 100-120', $this->plugin_slug ),
 						'scope'			=> array( 'sf_source_article' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
@@ -763,7 +764,7 @@ class Sources_Footnotes {
 						'name'			=> 'sf-source-url',
 						'label'			=> __( 'URL', $this->plugin_slug ),
 						'type'			=> 'text',
-						'description'	=> __( 'For non-web sources, you can provide a URL if they\'re also available online' ),
+						'description'	=> __( 'For non-web sources, you can provide a URL if they\'re also available online', $this->plugin_slug ),
 						'scope'			=> array( 'sf_source_book', 'sf_source_article', 'sf_source_web-page' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
@@ -783,7 +784,190 @@ class Sources_Footnotes {
 	}
 
 	/**
-	 * Custom scope checking for custom fields
+	 * Register custom fields for CMB2
+	 *
+	 * When referencing fields, use this class's method to get the right key, using
+	 * the 'name' from the DCF field definitions above, e.g.
+	 *
+	 * echo get_post_meta( $post->ID, $this->custom_field_key( 'sf-source-url-accessed' ), true );
+	 *
+	 * @since	0.3
+	 */
+	public function register_custom_fields_cmb2() {
+
+		// Main details
+		$args = array(
+			'cmb2_box' => array(
+				'id'             => 'sources_footnotes_details_box',
+				'title'          => __( 'Details' ),
+				'object_types'   => array( 'sf_source' ),
+				'context'        => 'normal',
+				'priority'       => 'high',
+				'show_names'     => true,
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'user_can' => 'edit_posts',
+				),
+			),
+			'_sf_source-new-post-hint' => array(
+				'name'           => __( 'Creating a new source', $this->plugin_slug ),
+				'id'             => '_sf-source-new-post-hint',
+				'type'           => 'title',
+				'desc'           => '<span class="sf-nb">' . __( 'Select the source type and author using the taxonomy boxes. Then save to populate type-specific fields.', $this->plugin_slug ) . '</span>',
+				'show_on_cb'     => array( $this, 'cmb2_show_on_new_post' ),
+				'on_front'       => false,
+			),
+			'_sf_source-recommended' => array(
+				'name'     => __( 'Recommended?', $this->plugin_slug ),
+				'id'       => '_sf-source-recommended',
+				'type'     => 'checkbox',
+				'on_front' => false,
+			),
+			'_sf_source-subtitle' => array(
+				'name'           => __( 'Subtitle', $this->plugin_slug ),
+				'id'             => '_sf-source-subtitle',
+				'type'           => 'text',
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'book', 'article', 'web-page' )
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-anthology' => array(
+				'name'           => __( 'Anthology?', $this->plugin_slug ),
+				'id'             => '_sf-source-anthology',
+				'type'           => 'checkbox',
+				'desc'           => __( 'If checked, authors are editors', $this->plugin_slug ),
+				'default'        => false,
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'book' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-year' => array(
+				'name'           => __( 'Year', $this->plugin_slug ),
+				'id'             => '_sf-source-year',
+				'type'           => 'text_small',
+				'desc'           => __( 'The year of original publication', $this->plugin_slug ),
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'book', 'article', 'film', 'song' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-edition-year' => array(
+				'name'           => __( 'Edition year', $this->plugin_slug ),
+				'id'             => '_sf-source-edition-year',
+				'type'           => 'text_small',
+				'desc'           => __( 'If different from year of original publication', $this->plugin_slug ),
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'book' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-publisher' => array(
+				'name'           => __( 'Publisher', $this->plugin_slug ),
+				'id'             => '_sf-source-publisher',
+				'type'           => 'text',
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'book' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-publisher-location' => array(
+				'name'           => __( 'Publisher location', $this->plugin_slug ),
+				'id'             => '_sf-source-publisher-location',
+				'type'           => 'text',
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'book' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-article-origin-title' => array(
+				'name'           => __( 'Article origin title', $this->plugin_slug ),
+				'id'             => '_sf-source-article-origin-title',
+				'type'           => 'text',
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'article' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-article-origin-volume' => array(
+				'name'           => __( 'Article origin volume details', $this->plugin_slug ),
+				'id'             => '_sf-source-article-origin-volume',
+				'type'           => 'text',
+				'desc'           => __( 'e.g. Vol. 42, No. 19, pp. 100-120', $this->plugin_slug ),
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'article' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-url' => array(
+				'name'           => __( 'URL', $this->plugin_slug ),
+				'id'             => '_sf-source-url',
+				'type'           => 'text_url',
+				'desc'           => __( 'For non-web sources, you can provide a URL if they\'re also available online', $this->plugin_slug ),
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'article', 'book', 'web-page' ),
+					),
+				),
+				'on_front'       => false,
+			),
+			'_sf_source-url-accessed' => array(
+				'name'           => __( 'URL accessed date', $this->plugin_slug ),
+				'id'             => '_sf-source-url-accessed',
+				'type'           => 'text_date',
+				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+				'show_on_custom' => array(
+					'taxonomy_match' => array(
+						'sf_source_type' => array( 'article', 'book', 'web-page' ),
+					),
+				),
+				'on_front'       => false,
+			),
+		);
+		$fields = array_keys( $args );
+		unset( $fields[ array_search( 'cmb2_box', $fields ) ] );
+		$args = apply_filters( 'sf_custom_field_details_box_args_cmb2', $args );
+
+		$cmb = new_cmb2_box( $args['cmb2_box'] );
+
+		// Allow for fields having been removed by filter
+		foreach ( $fields as $field ) :
+			if ( array_key_exists( $field, $args ) ) :
+				$cmb->add_field( $args[ $field ] );
+			endif;
+		endforeach;
+
+	}
+
+
+	/**
+	 * Custom scope checking for Developer's Custom Fields
 	 *
 	 * @since	0.1
 	 */
@@ -830,6 +1014,200 @@ class Sources_Footnotes {
 
 		return $scope_match;
 	}
+
+
+	/**
+	 * Callback to handle custom CMB2 show_on conditions
+	 *
+	 * @since   3.0
+	 * @param   object  $cmb
+	 * @return  bool
+	 */
+	public function cmb2_show_on_custom( $cmb ) {
+		$show = true;
+		$show_on_custom = $cmb->prop( 'show_on_custom' );
+		// If any of these conditions fail, the box isn't shown
+		// All other conditions, only one needs to pass if the fail conditions pass
+		$fail_conditions = array( 'user_can', 'taxonomy_match' );
+
+		if ( ! empty( $show_on_custom ) ) :
+			$screen = get_current_screen();
+
+			// Loop through conditions
+			foreach ( $show_on_custom as $show_on_type => $show_on_condition ) :
+
+				// Check conditions which will prevent showing if any fail
+				if ( in_array( $show_on_type, $fail_conditions ) ) :
+
+					switch ( $show_on_type ) :
+
+						case 'user_can':
+
+							// Special capabilities
+							switch ( $show_on_condition ) :
+
+								case 'publish_post_types':
+								case 'edit_others_post_types':
+									$cap_for_posts = str_replace( '_post_types', '_posts', $show_on_condition );
+									$post_type_object = get_post_type_object( $screen->post_type );
+									$cap = $post_type_object->cap->$cap_for_posts;
+									break;
+
+								default:
+									$cap = $show_on_condition;
+									break;
+
+							endswitch;
+
+							// Check user capability
+							$show = current_user_can( $cap );
+
+							break;
+
+						case 'taxonomy_match':
+
+							// Check for matching taxonomy terms
+							if ( ! empty( $show_on_condition ) && is_array( $show_on_condition ) ) :
+
+								$term_matched = false;
+
+								foreach ( $show_on_condition as $tax => $terms ) :
+
+									// Get terms
+									$object_terms = get_the_terms( $cmb->object_id, $tax );
+									if ( ! empty( $object_terms ) && array_intersect( $terms, wp_list_pluck( $object_terms, 'slug' ) ) ) :
+										$term_matched = true;
+										break;
+									endif;
+
+								endforeach;
+
+								$show = $term_matched;
+
+							endif;
+
+							break;
+
+					endswitch;
+
+				endif;
+
+			endforeach;
+
+			// If we're still OK, continue
+			if ( $show ) :
+
+				// Loop through conditions again,
+				// checking conditions which only need one to pass
+				foreach ( $show_on_custom as $show_on_type => $show_on_condition ) :
+
+					if ( ! in_array( $show_on_type, $fail_conditions ) ) :
+
+						switch ( $show_on_type ) :
+
+							case 'mime_types':
+								// Check for media MIME types
+								if ( ! empty( $show_on_condition ) && is_array( $show_on_condition ) && in_array( 'attachment', $cmb->prop( 'object_types' ) ) ) :
+									$show = in_array( get_post_mime_type(), $show_on_condition );
+								endif;
+								break;
+
+						endswitch;
+
+						// If any has passed, break out
+						if ( $show ) :
+							break;
+						endif;
+
+					endif;
+
+				endforeach;
+
+			endif;
+
+		endif;
+
+		return $show;
+	}
+
+
+	/**
+	 * Callback to show on new post for CMB2
+	 *
+	 * @since   3.0
+	 * @param   object  $cmb
+	 * @return  bool
+	 */
+	public function cmb2_show_on_new_post( $cmb ) {
+		global $pagenow;
+		return ( $pagenow == 'post-new.php' );
+	}
+
+
+	/**
+	 * Get custom field key
+	 *
+	 * @param string $key
+	 * @return string
+	 */
+	public function custom_field_key( $key ) {
+
+		if ( function_exists( 'slt_cf_field_key' ) ) :
+
+			// Developer's Custom Fields
+			$key = slt_cf_field_key( $key );
+
+		elseif ( class_exists( 'CMB2' ) ) :
+
+			// CMB2
+			$key = '_' . $key;
+
+		endif;
+
+		return $key;
+	}
+
+
+	/**
+	 * Get a post's custom fields, stripping any prefixes
+	 *
+	 * @since   3.0
+	 * @param   int     $post_id
+	 * @return  array
+	 */
+	public function get_custom_fields( $post_id ) {
+		$fields           = null;
+		$values           = array();
+		$values_no_prefix = array();
+		$values           = get_post_custom( $post_id );
+
+		if ( ! empty( $values ) ) :
+
+			// What's the prefix?
+			$prefix = '_';
+			if ( function_exists( 'slt_cf_prefix' ) ) :
+				$prefix = slt_cf_prefix();
+			endif;
+
+			foreach ( $values as $key => $value ) :
+				$new_key = $key;
+
+				// Strip standard prefix?
+				if ( strlen( $key ) > strlen( $prefix ) && substr( $key, 0, strlen( $prefix ) ) == $prefix ) :
+					$new_key = preg_replace( '#' . $prefix . '#', '', $key, 1 );
+				endif;
+
+				$values_no_prefix[ $new_key ] = $value[0];
+			endforeach;
+
+		endif;
+
+		// Unserialize? Maybe
+		$values_no_prefix = array_map( 'maybe_unserialize', $values_no_prefix );
+
+		return $values_no_prefix;
+	}
+
 
 	/**
 	 * Hooked to save_post to store the title for sorting
@@ -967,9 +1345,9 @@ class Sources_Footnotes {
 
 		// Build meta query
 		$meta_query = array();
-		if ( ! is_null( $a['recommended'] ) && function_exists( 'slt_cf_field_key' ) ) {
+		if ( ! is_null( $a['recommended'] ) ) {
 			$meta_query[] = array(
-				'key'		=> slt_cf_field_key( 'sf-source-recommended' ),
+				'key'		=> $this->custom_field_key( 'sf-source-recommended' ),
 				'value'		=> $a['recommended']
 			);
 		}
@@ -1204,15 +1582,11 @@ class Sources_Footnotes {
 		$details = array(
 			'id'			=> $source_id,
 			'title'			=> get_the_title( $source_id ),
-			'meta'			=> array(),
+			'meta'          => $this->get_custom_fields( $source_id ),
 			'authors'		=> get_the_terms( $source_id, 'sf_author' ),
 			'translators'	=> get_the_terms( $source_id, 'sf_translator' ),
-			'type'			=> array_shift( $types )
+			'type'			=> array_shift( $types ),
 		);
-
-		if ( function_exists( 'slt_cf_all_field_values' ) ) {
-			$details['meta'] = slt_cf_all_field_values( 'post', $source_id );
-		}
 
 		return $details;
 	}

@@ -24,6 +24,7 @@ jQuery( document ).ready( function( $ ) {
 		tooltipClass: 'sf-tooltip',
 		// Hack to keep visible on mouseover: http://stackoverflow.com/a/15014759/1087660
 		show: null, // show immediately
+		position: { my: "left-20 top+10" },
 		hide: {
 			effect: "" // fadeOut
 		},

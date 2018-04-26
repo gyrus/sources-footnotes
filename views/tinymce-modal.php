@@ -73,9 +73,7 @@ global $post;
 							}
 
 							// Date
-							if ( function_exists( 'slt_cf_field_value' ) ) {
-								echo slt_cf_field_value( 'sf-source-year' );
-							}
+							echo get_post_meta( get_the_ID(), $this->custom_field_key( 'sf-source-year' ), true );
 
 							echo ')';
 
