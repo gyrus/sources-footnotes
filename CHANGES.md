@@ -3,6 +3,7 @@
 ## 0.3 (????-??-??)
 * Added support for CMB2
 * Output URL with web page sources
+* URL field available for films
 
 ## 0.2.2 (2017-06-08)
 * Added source ID to `sf_footnote` filter

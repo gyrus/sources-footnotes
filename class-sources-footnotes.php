@@ -765,14 +765,14 @@ class Sources_Footnotes {
 						'label'			=> __( 'URL', $this->plugin_slug ),
 						'type'			=> 'text',
 						'description'	=> __( 'For non-web sources, you can provide a URL if they\'re also available online', $this->plugin_slug ),
-						'scope'			=> array( 'sf_source_book', 'sf_source_article', 'sf_source_web-page' ),
+						'scope'			=> array( 'sf_source_book', 'sf_source_article', 'sf_source_web-page', 'sf_source-film' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
 					array(
 						'name'			=> 'sf-source-url-accessed',
 						'label'			=> __( 'URL accessed date', $this->plugin_slug ),
 						'type'			=> 'date',
-						'scope'			=> array( 'sf_source_book', 'sf_source_article', 'sf_source_web-page' ),
+						'scope'			=> array( 'sf_source_book', 'sf_source_article', 'sf_source_web-page', 'sf_source-film' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
 				)
@@ -932,7 +932,7 @@ class Sources_Footnotes {
 				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
 				'show_on_custom' => array(
 					'taxonomy_match' => array(
-						'sf_source_type' => array( 'article', 'book', 'web-page' ),
+						'sf_source_type' => array( 'article', 'book', 'web-page', 'film' ),
 					),
 				),
 				'on_front'       => false,
@@ -944,7 +944,7 @@ class Sources_Footnotes {
 				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
 				'show_on_custom' => array(
 					'taxonomy_match' => array(
-						'sf_source_type' => array( 'article', 'book', 'web-page' ),
+						'sf_source_type' => array( 'article', 'book', 'web-page', 'film' ),
 					),
 				),
 				'on_front'       => false,
@@ -1704,6 +1704,16 @@ class Sources_Footnotes {
 				// Accessed date
 				if ( ! empty( $source_details['meta']['sf-source-url-accessed'] ) ) {
 					$meta[] = ' (' . __( 'accessed', $this->plugin_slug ) . ' ' . apply_filters( 'sf_date_format', $source_details['meta']['sf-source-url-accessed'], $source_details['meta']['sf-source-url-accessed'] ) . ')';
+				}
+
+				break;
+			}
+
+			case 'film': {
+
+				// URL
+				if ( $url = $this->source_url( $source_details ) ) {
+					$meta[] = $url;
 				}
 
 				break;
