@@ -1815,7 +1815,7 @@ class Sources_Footnotes {
 			case 'web-page': {
 				$formatted_title = $title;
 				if ( ! empty( $source_details['meta']['sf-source-url'] ) ) {
-					$formatted_title = '<a href="' . esc_url( $source_details['meta']['sf-source-url'] ) . '">' . $title . '</a>';
+					$formatted_title = $title . ', <a href="' . esc_url( $source_details['meta']['sf-source-url'] ) . '">' . $source_details['meta']['sf-source-url'] . '</a>';
 				}
 				break;
 			}
