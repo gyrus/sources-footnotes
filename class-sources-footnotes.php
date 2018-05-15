@@ -510,20 +510,26 @@ class Sources_Footnotes {
 		register_taxonomy(
 			'sf_source_type', 'sf_source',
 			array(
-				'hierarchical'		=> true,
-				'query_var'			=> false,
-				'rewrite'			=> false,
-				'show_admin_column'	=> true,
-				'labels'			=> array(
-					'name'				=> __( 'Source types', $this->plugin_slug ),
-					'singular_name'		=> __( 'Source type', $this->plugin_slug ),
-					'search_items'		=> __( 'Search Source types', $this->plugin_slug ),
-					'all_items'			=> __( 'All Source types', $this->plugin_slug ),
-					'edit_item'			=> __( 'Edit Source type', $this->plugin_slug ),
-					'update_item'		=> __( 'Update Source type', $this->plugin_slug ),
-					'add_new_item'		=> __( 'Add New Source type', $this->plugin_slug ),
-					'new_item_name'		=> __( 'New Source type Name', $this->plugin_slug ),
-				)
+				'hierarchical'      => true,
+				'query_var'         => false,
+				'rewrite'           => false,
+				'show_admin_column' => true,
+				'labels'            => array(
+					'name'          => __( 'Source types', $this->plugin_slug ),
+					'singular_name' => __( 'Source type', $this->plugin_slug ),
+					'search_items'  => __( 'Search Source types', $this->plugin_slug ),
+					'all_items'     => __( 'All Source types', $this->plugin_slug ),
+					'edit_item'     => __( 'Edit Source type', $this->plugin_slug ),
+					'update_item'   => __( 'Update Source type', $this->plugin_slug ),
+					'add_new_item'  => __( 'Add New Source type', $this->plugin_slug ),
+					'new_item_name' => __( 'New Source type Name', $this->plugin_slug ),
+				),
+				'capabilities'      => array(
+					'manage_terms' => 'switch_themes',
+					'edit_terms'   => 'switch_themes',
+					'delete_terms' => 'switch_themes',
+					'assign_terms' => 'edit_posts',
+				),
 			)
 		);
 
