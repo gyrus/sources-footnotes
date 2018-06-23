@@ -1,6 +1,6 @@
 # Changelog for Sources and Footnotes
 
-## 0.3 (????-??-??)
+## 0.3 (2018-06-23)
 * Added support for CMB2
 * Output URL with web page sources
 * URL field available for films
