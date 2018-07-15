@@ -22,7 +22,7 @@ class Sources_Footnotes {
 	 *
 	 * @var     string
 	 */
-	protected $version = '0.3';
+	protected $version = '0.3.1';
 
 	/**
 	 * Unique identifier for your plugin.
@@ -801,173 +801,178 @@ class Sources_Footnotes {
 	 */
 	public function register_custom_fields_cmb2() {
 
-		// Main details
-		$args = array(
-			'cmb2_box' => array(
-				'id'             => 'sources_footnotes_details_box',
-				'title'          => __( 'Details' ),
-				'object_types'   => array( 'sf_source' ),
-				'context'        => 'normal',
-				'priority'       => 'high',
-				'show_names'     => true,
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'user_can' => 'edit_posts',
-				),
-			),
-			'_sf_source-new-post-hint' => array(
-				'name'           => __( 'Creating a new source', $this->plugin_slug ),
-				'id'             => '_sf-source-new-post-hint',
-				'type'           => 'title',
-				'desc'           => '<span class="sf-nb">' . __( 'Select the source type and author using the taxonomy boxes. Then save to populate type-specific fields.', $this->plugin_slug ) . '</span>',
-				'show_on_cb'     => array( $this, 'cmb2_show_on_new_post' ),
-				'on_front'       => false,
-			),
-			'_sf_source-recommended' => array(
-				'name'     => __( 'Recommended?', $this->plugin_slug ),
-				'id'       => '_sf-source-recommended',
-				'type'     => 'checkbox',
-				'on_front' => false,
-			),
-			'_sf_source-subtitle' => array(
-				'name'           => __( 'Subtitle', $this->plugin_slug ),
-				'id'             => '_sf-source-subtitle',
-				'type'           => 'text',
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'book', 'article', 'web-page' )
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-anthology' => array(
-				'name'           => __( 'Anthology?', $this->plugin_slug ),
-				'id'             => '_sf-source-anthology',
-				'type'           => 'checkbox',
-				'desc'           => __( 'If checked, authors are editors', $this->plugin_slug ),
-				'default'        => false,
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'book' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-year' => array(
-				'name'           => __( 'Year', $this->plugin_slug ),
-				'id'             => '_sf-source-year',
-				'type'           => 'text_small',
-				'desc'           => __( 'The year of original publication', $this->plugin_slug ),
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'book', 'article', 'film', 'song' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-edition-year' => array(
-				'name'           => __( 'Edition year', $this->plugin_slug ),
-				'id'             => '_sf-source-edition-year',
-				'type'           => 'text_small',
-				'desc'           => __( 'If different from year of original publication', $this->plugin_slug ),
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'book' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-publisher' => array(
-				'name'           => __( 'Publisher', $this->plugin_slug ),
-				'id'             => '_sf-source-publisher',
-				'type'           => 'text',
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'book' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-publisher-location' => array(
-				'name'           => __( 'Publisher location', $this->plugin_slug ),
-				'id'             => '_sf-source-publisher-location',
-				'type'           => 'text',
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'book' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-article-origin-title' => array(
-				'name'           => __( 'Article origin title', $this->plugin_slug ),
-				'id'             => '_sf-source-article-origin-title',
-				'type'           => 'text',
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'article' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-article-origin-volume' => array(
-				'name'           => __( 'Article origin volume details', $this->plugin_slug ),
-				'id'             => '_sf-source-article-origin-volume',
-				'type'           => 'text',
-				'desc'           => __( 'e.g. Vol. 42, No. 19, pp. 100-120', $this->plugin_slug ),
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'article' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-url' => array(
-				'name'           => __( 'URL', $this->plugin_slug ),
-				'id'             => '_sf-source-url',
-				'type'           => 'text_url',
-				'desc'           => __( 'For non-web sources, you can provide a URL if they\'re also available online', $this->plugin_slug ),
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'article', 'book', 'web-page', 'film' ),
-					),
-				),
-				'on_front'       => false,
-			),
-			'_sf_source-url-accessed' => array(
-				'name'           => __( 'URL accessed date', $this->plugin_slug ),
-				'id'             => '_sf-source-url-accessed',
-				'type'           => 'text_date',
-				'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
-				'show_on_custom' => array(
-					'taxonomy_match' => array(
-						'sf_source_type' => array( 'article', 'book', 'web-page', 'film' ),
-					),
-				),
-				'on_front'       => false,
-			),
-		);
-		$fields = array_keys( $args );
-		unset( $fields[ array_search( 'cmb2_box', $fields ) ] );
-		$args = apply_filters( 'sf_custom_field_details_box_args_cmb2', $args );
+		// Only defined CMB2 fields if DCF isn't running
+		if ( ! defined( 'SLT_CF_VERSION' ) ) :
 
-		$cmb = new_cmb2_box( $args['cmb2_box'] );
+			// Main details
+			$args = array(
+				'cmb2_box' => array(
+					'id'             => 'sources_footnotes_details_box',
+					'title'          => __( 'Details' ),
+					'object_types'   => array( 'sf_source' ),
+					'context'        => 'normal',
+					'priority'       => 'high',
+					'show_names'     => true,
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'user_can' => 'edit_posts',
+					),
+				),
+				'_sf_source-new-post-hint' => array(
+					'name'           => __( 'Creating a new source', $this->plugin_slug ),
+					'id'             => '_sf-source-new-post-hint',
+					'type'           => 'title',
+					'desc'           => '<span class="sf-nb">' . __( 'Select the source type and author using the taxonomy boxes. Then save to populate type-specific fields.', $this->plugin_slug ) . '</span>',
+					'show_on_cb'     => array( $this, 'cmb2_show_on_new_post' ),
+					'on_front'       => false,
+				),
+				'_sf_source-recommended' => array(
+					'name'     => __( 'Recommended?', $this->plugin_slug ),
+					'id'       => '_sf-source-recommended',
+					'type'     => 'checkbox',
+					'on_front' => false,
+				),
+				'_sf_source-subtitle' => array(
+					'name'           => __( 'Subtitle', $this->plugin_slug ),
+					'id'             => '_sf-source-subtitle',
+					'type'           => 'text',
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'book', 'article', 'web-page' )
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-anthology' => array(
+					'name'           => __( 'Anthology?', $this->plugin_slug ),
+					'id'             => '_sf-source-anthology',
+					'type'           => 'checkbox',
+					'desc'           => __( 'If checked, authors are editors', $this->plugin_slug ),
+					'default'        => false,
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'book' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-year' => array(
+					'name'           => __( 'Year', $this->plugin_slug ),
+					'id'             => '_sf-source-year',
+					'type'           => 'text_small',
+					'desc'           => __( 'The year of original publication', $this->plugin_slug ),
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'book', 'article', 'film', 'song' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-edition-year' => array(
+					'name'           => __( 'Edition year', $this->plugin_slug ),
+					'id'             => '_sf-source-edition-year',
+					'type'           => 'text_small',
+					'desc'           => __( 'If different from year of original publication', $this->plugin_slug ),
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'book' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-publisher' => array(
+					'name'           => __( 'Publisher', $this->plugin_slug ),
+					'id'             => '_sf-source-publisher',
+					'type'           => 'text',
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'book' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-publisher-location' => array(
+					'name'           => __( 'Publisher location', $this->plugin_slug ),
+					'id'             => '_sf-source-publisher-location',
+					'type'           => 'text',
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'book' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-article-origin-title' => array(
+					'name'           => __( 'Article origin title', $this->plugin_slug ),
+					'id'             => '_sf-source-article-origin-title',
+					'type'           => 'text',
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'article' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-article-origin-volume' => array(
+					'name'           => __( 'Article origin volume details', $this->plugin_slug ),
+					'id'             => '_sf-source-article-origin-volume',
+					'type'           => 'text',
+					'desc'           => __( 'e.g. Vol. 42, No. 19, pp. 100-120', $this->plugin_slug ),
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'article' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-url' => array(
+					'name'           => __( 'URL', $this->plugin_slug ),
+					'id'             => '_sf-source-url',
+					'type'           => 'text_url',
+					'desc'           => __( 'For non-web sources, you can provide a URL if they\'re also available online', $this->plugin_slug ),
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'article', 'book', 'web-page', 'film' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-url-accessed' => array(
+					'name'           => __( 'URL accessed date', $this->plugin_slug ),
+					'id'             => '_sf-source-url-accessed',
+					'type'           => 'text_date',
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'article', 'book', 'web-page', 'film' ),
+						),
+					),
+					'on_front'       => false,
+				),
+			);
+			$fields = array_keys( $args );
+			unset( $fields[ array_search( 'cmb2_box', $fields ) ] );
+			$args = apply_filters( 'sf_custom_field_details_box_args_cmb2', $args );
 
-		// Allow for fields having been removed by filter
-		foreach ( $fields as $field ) :
-			if ( array_key_exists( $field, $args ) ) :
-				$cmb->add_field( $args[ $field ] );
-			endif;
-		endforeach;
+			$cmb = new_cmb2_box( $args['cmb2_box'] );
+
+			// Allow for fields having been removed by filter
+			foreach ( $fields as $field ) :
+				if ( array_key_exists( $field, $args ) ) :
+					$cmb->add_field( $args[ $field ] );
+				endif;
+			endforeach;
+
+		endif;
 
 	}
 
