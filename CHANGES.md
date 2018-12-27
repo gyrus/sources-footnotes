@@ -2,6 +2,7 @@
 
 ## 0.3.1 (????-??-??)
 * Default to Developer's Custom Fields if this is installed alongside CMB2
+* Fixed PHP warnings
 
 ## 0.3 (2018-06-23)
 * Added support for CMB2

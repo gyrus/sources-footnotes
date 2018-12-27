@@ -1596,7 +1596,7 @@ class Sources_Footnotes {
 			'meta'          => $this->get_custom_fields( $source_id ),
 			'authors'		=> get_the_terms( $source_id, 'sf_author' ),
 			'translators'	=> get_the_terms( $source_id, 'sf_translator' ),
-			'type'			=> array_shift( $types ),
+			'type'			=> is_array( $types ) ? array_shift( $types ) : null,
 		);
 
 		return $details;
