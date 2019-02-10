@@ -1540,7 +1540,7 @@ class Sources_Footnotes {
 
 					// Automatically link URLs?
 					if ( $this->settings['auto_link_note_urls'] ) {
-						$footnote['note'] = preg_replace( '/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/\S*)?/', '<a href="\0">\0</a>', $footnote['note'] );
+						$footnote['note'] = preg_replace( '/(http|https|ftp|ftps)\:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,3}(\/[^,)\s]*)?/', '<a href="\0">\0</a>', $footnote['note'] );
 					}
 
 					// Add note

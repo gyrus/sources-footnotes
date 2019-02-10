@@ -2,6 +2,7 @@
 
 ## 0.3.1 (????-??-??)
 * Default to Developer's Custom Fields if this is installed alongside CMB2
+* Improved auto-linking in notes to not include trailing brackets and commas
 * Fixed PHP warnings
 
 ## 0.3 (2018-06-23)
