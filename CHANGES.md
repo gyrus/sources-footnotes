@@ -1,6 +1,6 @@
 # Changelog for Sources and Footnotes
 
-## 0.3.1 (????-??-??)
+## 0.3.1 (2019-11-23)
 * Default to Developer's Custom Fields if this is installed alongside CMB2
 * Improved auto-linking in notes to not include trailing brackets and commas
 * Fixed PHP warnings
