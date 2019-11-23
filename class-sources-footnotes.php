@@ -1488,19 +1488,10 @@ class Sources_Footnotes {
 						// Ibid.
 						$footnote_output .= '<i>Ibid.</i>';
 
-					} else if ( $this->settings['ibid'] && array_key_exists( $authors_id, $last_source_ids_by_author ) ) {
+					} else if ( $this->settings['ibid'] && array_key_exists( $authors_id, $last_source_ids_by_author ) && $last_source_ids_by_author[ $authors_id ] == $footnote['source_id'] ) {
 
 						// Op. cit.
-						if ( $last_source_ids_by_author[ $authors_id ] == $footnote['source_id'] ) {
-
-							// Same source
-							$footnote_output .= $this->list_names( $source_details['authors'] ) . ', <i>Op. cit.</i>';
-
-						} else {
-
-							// Different source
-							$footnote_output .= $this->list_names( $source_details['authors'] ) . ' (' . $source_details['meta']['sf-source-year'] . '), <i>Op. cit.</i>';
-						}
+						$footnote_output .= $this->list_names( $source_details['authors'] ) . ', <i>Op. cit.</i>';
 
 					} else {
 
