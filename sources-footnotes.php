@@ -36,6 +36,7 @@ Sources_Footnotes::get_instance();
 /* Easy-access functions for theme templates
 *******************************************************************************/
 
+
 /**
  * List footnotes
  *
@@ -44,6 +45,7 @@ Sources_Footnotes::get_instance();
  * @return	mixed
  */
 function sf_list_footnotes( $echo = true ) {
+
 	$SF = Sources_Footnotes::get_instance();
 
 	$output = $SF->list_footnotes( false );
@@ -53,5 +55,29 @@ function sf_list_footnotes( $echo = true ) {
 	} else {
 		return $output;
 	}
+
+}
+
+
+/**
+ * Get authors list
+ *
+ * @since 0.3.2
+ * @param int $source_id
+ * @return string
+ */
+function sf_get_authors( $source_id ) {
+
+	// Init
+	$SF           = Sources_Footnotes::get_instance();
+	$authors      = '';
+	$author_terms = get_the_terms( $source_id, 'sf_author' );
+
+	// Build string
+	if ( ! empty( $author_terms ) ) :
+		$authors = $SF->list_names( $author_terms );
+	endif;
+
+	return $authors;
 
 }

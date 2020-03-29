@@ -640,7 +640,7 @@ class Sources_Footnotes {
 	 * List names
 	 *
 	 * @since	0.1
-	 * @param	mixed	$names		Array of strings or object
+	 * @param	array	$names		Array of strings or objects
 	 * @param	string	$name_prop	If $names is an array of objects, this is the property in each object
 	 * 								that contains the name
 	 * @return	string
