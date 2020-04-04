@@ -2,6 +2,7 @@
 
 ## 0.3.2 (????-??-??)
 * Added `sf_get_authors()`
+* Added custom field for uploading a document to a source
 
 ## 0.3.1 (2019-11-23)
 * Default to Developer's Custom Fields if this is installed alongside CMB2

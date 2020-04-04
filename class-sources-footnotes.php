@@ -781,6 +781,13 @@ class Sources_Footnotes {
 						'scope'			=> array( 'sf_source_book', 'sf_source_article', 'sf_source_web-page', 'sf_source-film' ),
 						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
 					),
+					array(
+						'name'			=> 'sf-source-file',
+						'label'			=> __( 'Source file', $this->plugin_slug ),
+						'type'			=> 'file',
+						'scope'			=> array( 'sf_source_book', 'sf_source_article' ),
+						'capabilities'	=> array( 'edit_posts', 'edit_pages' )
+					),
 				)
 			));
 			slt_cf_register_box( $args );
@@ -954,6 +961,22 @@ class Sources_Footnotes {
 					'show_on_custom' => array(
 						'taxonomy_match' => array(
 							'sf_source_type' => array( 'article', 'book', 'web-page', 'film' ),
+						),
+					),
+					'on_front'       => false,
+				),
+				'_sf_source-file' => array(
+					'name'           => __( 'Source file', $this->plugin_slug ),
+					'id'             => '_sf-source-file',
+					'type'           => 'file',
+					'options'        => [
+						'url'                  => false,
+						'add_upload_file_text' => 'Add file',
+					],
+					'show_on_cb'     => array( $this, 'cmb2_show_on_custom' ),
+					'show_on_custom' => array(
+						'taxonomy_match' => array(
+							'sf_source_type' => array( 'article', 'book' ),
 						),
 					),
 					'on_front'       => false,
